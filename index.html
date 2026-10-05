@@ -94,9 +94,10 @@ tr.click:hover td{background:#faf5ee}
 .optbtns{display:flex;flex-wrap:wrap;gap:4px}
 .optbtns .btn{border:1px solid var(--line);background:#fff}
 .optbtns .btn:hover{background:#f2ece2}
+.optbtns .chip{display:inline-block;width:12px;height:12px;border-radius:3px;margin-right:5px;vertical-align:-2px;border:1px solid rgba(0,0,0,.18)}
 .optbtns .btn.on,.optbtns .btn.on:hover{background:var(--ink);border-color:var(--ink);color:#fff}
 .form label{display:flex;flex-direction:column;gap:3px;font-size:12px;color:var(--muted)}
-.form label.full{grid-column:1/-1}
+.form label.full,.form div.full{grid-column:1/-1}
 .form input,.form select{border:1px solid var(--line);border-radius:6px;padding:5px 7px;background:#fff;width:100%}
 .form input[type=color]{padding:2px;height:30px}
 .actions{display:flex;flex-wrap:wrap;gap:6px;margin-top:10px}
@@ -358,7 +359,7 @@ const LANGS = ['zh', 'zht', 'en'];             // 简体 / 繁體（台湾用字
 let LANG = (() => { try { const l = localStorage.getItem(LANG_KEY); return LANGS.includes(l) ? l : 'zht'; } catch(e) { return 'zht'; } })();
 // 简 → 繁：先按词替换一字多义的字，再逐字查表（表由 OpenCC s2tw 按本页用到的字生成）
 const S2T_PHRASES = [['布置','佈置'],['布局','佈局'],['台面','檯面'],['复制','複製']];
-const S2T = new Map(('与與两兩个個为為书書于於仅僅从從价價会會传傳体體余餘侧側倾傾储儲儿兒关關内內写寫净淨准準击擊则則刚剛删刪制製办辦动動势勢区區单單占佔卧臥卫衛厅廳历歷压壓厨廚双雙发發变變叶葉后後吗嗎听聽启啟哑啞围圍图圖圆圓场場坐座块塊垫墊墙牆处處备備复復头頭妆妝婴嬰实實宽寬对對导導层層屉屜属屬岛島带帶干乾并並库庫应應开開当當径徑态態总總悬懸懒懶户戶护護拟擬择擇挂掛挡擋挤擠损損换換据據摆擺摇搖撑撐数數无無时時显顯暂暫机機杂雜杆桿条條来來松鬆构構柜櫃标標栈棧栏欄样樣梁樑棱稜椭橢横橫橱櫥气氣没沒注註浅淺测測浏瀏游遊滚滾满滿灯燈灵靈点點热熱状狀独獨环環现現电電画畫监監盖蓋盘盤砖磚确確离離积積称稱竖豎筑築签籤类類约約级級线線结結绕繞绘繪给給统統继繼绿綠缀綴编編缝縫缩縮网網联聯脚腳获獲虚虛装裝见見视視览覽触觸计計认認让讓议議记記设設识識译譯该該语語请請读讀调調负負败敗质質贴貼赶趕转轉轮輪软軟轴軸轻輕载載较較辅輔辑輯边邊过過这這进進远遠适適选選邻鄰里裡针針钢鋼钮鈕铰鉸铺鋪销銷锁鎖键鍵镜鏡长長门門闭閉闲閒间間阅閱阳陽阴陰阶階随隨隐隱静靜页頁顶頂项項顺順颜顏飘飄飞飛马馬鸟鳥齐齊龙龍华華纳納篮籃运運笼籠炉爐强強脱脫烟煙锅鍋栅柵矿礦涂塗还還旧舊档檔预預镂鏤轨軌').match(/../gu).map(p => [...p]));
+const S2T = new Map(('与與两兩个個为為书書于於仅僅从從价價会會传傳体體余餘侧側倾傾储儲儿兒关關内內写寫净淨准準击擊则則刚剛删刪制製办辦动動势勢区區单單占佔卧臥卫衛厅廳历歷压壓厨廚双雙发發变變叶葉后後吗嗎听聽启啟哑啞围圍图圖圆圓场場坐座块塊垫墊墙牆处處备備复復头頭妆妝婴嬰实實宽寬对對导導层層屉屜属屬岛島带帶干乾并並库庫应應开開当當径徑态態总總悬懸懒懶户戶护護拟擬择擇挂掛挡擋挤擠损損换換据據摆擺摇搖撑撐数數无無时時显顯暂暫机機杂雜杆桿条條来來松鬆构構柜櫃标標栈棧栏欄样樣梁樑棱稜椭橢横橫橱櫥气氣没沒注註浅淺测測浏瀏游遊滚滾满滿灯燈灵靈点點热熱状狀独獨环環现現电電画畫监監盖蓋盘盤砖磚确確离離积積称稱竖豎筑築签籤类類约約级級线線结結绕繞绘繪给給统統继繼绿綠缀綴编編缝縫缩縮网網联聯脚腳获獲虚虛装裝见見视視览覽触觸计計认認让讓议議记記设設识識译譯该該语語请請读讀调調负負败敗质質贴貼赶趕转轉轮輪软軟轴軸轻輕载載较較辅輔辑輯边邊过過这這进進远遠适適选選邻鄰里裡针針钢鋼钮鈕铰鉸铺鋪销銷锁鎖键鍵镜鏡长長门門闭閉闲閒间間阅閱阳陽阴陰阶階随隨隐隱静靜页頁顶頂项項顺順颜顏飘飄飞飛马馬鸟鳥齐齊龙龍华華纳納篮籃运運笼籠炉爐强強脱脫烟煙锅鍋栅柵矿礦涂塗还還旧舊档檔预預镂鏤轨軌纹紋').match(/../gu).map(p => [...p]));
 const s2t = s => S2T_PHRASES.reduce((a, [f, t]) => a.replaceAll(f, t), s).replace(/[\u3400-\u9fff]/g, c => S2T.get(c) || c);
 const tr = (zh, en) => LANG === 'en' ? en : LANG === 'zht' ? s2t(zh) : zh;
 // 内置的房间 / 材料 / 家具名称存的是中文；英文界面下显示译名，用户自己改过的名称原样显示
@@ -515,7 +516,7 @@ const VARIANTS = {
   tvstand2: {
     open:  {label:['设备抽屉', 'Device drawer'], values:{closed:['关闭', 'Closed'], open:['拉出', 'Pulled out']}, def:'closed', click:true},
     front: {label:['门片', 'Fronts'], values:{slat:['木格栅', 'Wood slats'], rattan:['藤编', 'Rattan']}, def:'slat'},
-    wood:  {label:['木色', 'Wood tone'], values:{oak:['日系橡木', 'Oak'], walnut:['胡桃木', 'Walnut']}, def:'oak'},
+    wood:  {label:['木色', 'Wood tone'], values:{theme:['跟全屋木色', 'Match home'], oak:['日系橡木', 'Oak'], walnut:['胡桃木', 'Walnut']}, def:'theme'},
   },
   // when(f)：该选项只在条件成立时出现在面板、也只在那时可被 3D 点一下切换
   kbar: {
@@ -532,6 +533,19 @@ const VARIANTS = {
   },
 };
 const WOOD_TONE = {oak:'#d6b78c', walnut:'#6b4c35'};
+// 全屋配色（state.theme，跟着存档 / 导出 / 撤销）：door = 柜体门片与柜身（木纹），wood = 台面、层板、木格栅与衬板
+const THEME = {
+  door: {white:['白木纹', 'White grain', '#f3f1ec'], greige:['浅灰木纹', 'Greige grain', '#dedad3'], latte:['奶茶木纹', 'Latte grain', '#e8dccb'], sand:['浅橡木纹', 'Light oak grain', '#e3cfae']},
+  wood: {oak:['日系橡木', 'Japanese oak', '#d6b78c'], ash:['白橡木', 'White oak', '#e6d4b6'], teak:['柚木', 'Teak', '#a8794c'], walnut:['胡桃木', 'Walnut', '#6b4c35']},
+};
+const THEME_DEF = {door:'white', wood:'oak'};
+const themeKey = k => Object.hasOwn(THEME[k], state?.theme?.[k] ?? '') ? state.theme[k] : THEME_DEF[k];
+const themeColor = k => THEME[k][themeKey(k)][2];
+const TW = () => themeColor('wood');                                       // 2D 图例里的木格栅 / 木作颜色
+// 个别家具的颜色色票（写入 f.color）：type → [[中文, 英文, 色码], …]
+const SWATCHES = {
+  homepod: [['午夜色', 'Midnight', '#2c2d30'], ['白色', 'White', '#ecebe7']],
+};
 // 读取选项值：存档里没有或值不合法时回到默认值（旧存档、手改 JSON 都安全）
 function optVal(type, opts, k){
   const o = VARIANTS[type]?.[k]; if (!o) return undefined;
@@ -606,7 +620,7 @@ function defaultFurniture(){ return [
 
 function defaultState(){
   const rooms = {}; ROOMS.forEach(r => rooms[r.id] = {name:r.name, mat:r.mat});
-  return {furniture:defaultFurniture(), rooms, demolished:[], measures:[], rev:DEF_REV};
+  return {furniture:defaultFurniture(), rooms, demolished:[], measures:[], theme:{...THEME_DEF}, rev:DEF_REV};
 }
 
 const STORE = 'huxing-plan-3br-v1';
@@ -625,6 +639,8 @@ function fixState(s){
   const d = defaultState();
   s.rooms = Object.assign(d.rooms, s.rooms || {});
   s.demolished = s.demolished || []; s.measures = s.measures || [];
+  const th = s.theme && typeof s.theme === 'object' ? s.theme : {};             // 配色：缺少或不合法时回到默认
+  s.theme = Object.fromEntries(Object.keys(THEME).map(k => [k, Object.hasOwn(THEME[k], th[k] ?? '') ? th[k] : THEME_DEF[k]]));
   return s;
 }
 
@@ -748,7 +764,7 @@ function furnSVG(t,w,d,c,op){
     case 'baycushion': return rc(x,y,w,d,c,'rx="60"') + rc(x+60,y+80,w-120,Math.min(300,d*.2),'#fff','rx="60"') + rc(x+60,y+d-80-Math.min(300,d*.2),w-120,Math.min(300,d*.2),'#fff','rx="60"');
     case 'coffeetable': return rc(x,y,w,d,c,'rx="80"') + rc(x+60,y+60,w-120,d-120,shade(c,1.06),'rx="50"');
     case 'tvstand2': {
-      const mid = Math.min(800, w*.45), sw = (w - mid)/2, gb = Math.min(50, d*.15), wc = WOOD_TONE[ov('wood')], rat = ov('front') === 'rattan', po = ov('open') === 'open' ? 250 : 0;
+      const mid = Math.min(800, w*.45), sw = (w - mid)/2, gb = Math.min(50, d*.15), wc = ov('wood') === 'theme' ? TW() : WOOD_TONE[ov('wood')], rat = ov('front') === 'rattan', po = ov('open') === 'open' ? 250 : 0;
       const n = parseInt(wc.slice(1), 16), lc = (.299*(n>>16&255) + .587*(n>>8&255) + .114*(n&255))/255 < .5 ? '#efe4d2' : '#3d3a34';   // 深木色用浅色纹路线
       const L = (x1,y1,x2,y2) => `<line x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}" stroke="${lc}" stroke-width="1" vector-effect="non-scaling-stroke" opacity=".6"/>`;
       const strip = (x0, ww, yy) => {                                                    // 门面：格栅竖线 / 藤编交叉线
@@ -828,7 +844,7 @@ function furnSVG(t,w,d,c,op){
     case 'ricecooker': return `<circle r="${Math.min(w*.4,d*.48)}" fill="${c}" ${ST}/><circle r="${Math.min(w*.12,d*.14)}" fill="#3a3a3c" ${ST}/>` + rc(x,-30,w,60,shade(c,.85));
     case 'roomAwall': {
       const sw = Math.min(625, w*.35);
-      let s = rc(x,y,sw,d,'#d6b78c') + rc(x+sw,y,w-sw,d*.5,c);
+      let s = rc(x,y,sw,d,TW()) + rc(x+sw,y,w-sw,d*.5,c);
       for (let k = x + 30; k < x + sw; k += 60) s += ln(k,y,k,y+d);
       return s;
     }
@@ -837,15 +853,15 @@ function furnSVG(t,w,d,c,op){
       return s + ln(x+40,y+d*.6,x+w-40,y+d*.6,'stroke-width="3"') + ln(x,y,x,y+d,DASH);
     }
     case 'ktower': if (ov('style') === 'open') {
-      let s = rc(x,y,w,d,c) + rc(x,y,w,350,'none',DASH) + rc(x-20,y,20,d,'#d6b78c');
+      let s = rc(x,y,w,d,c) + rc(x,y,w,350,'none',DASH) + rc(x-20,y,20,d,TW());
       for (let k = y + 30; k < y + d; k += 60) s += ln(x-20,k,x,k);
       return s + `<text x="${x+40}" y="${y+d-60}" font-size="90" fill="#7d7366">⇠ 扫地机</text>`;
     }
-    return rc(x,y,w,d,c) + ln(x,y,x+w,y+d,DASH) + ln(x+w,y,x,y+d,DASH) + rc(x-18,y,18,d,'#d6b78c') + `<text x="${x+40}" y="${y+d-60}" font-size="90" fill="#7d7366">⇠ 扫地机</text>`;
+    return rc(x,y,w,d,c) + ln(x,y,x+w,y+d,DASH) + ln(x+w,y,x,y+d,DASH) + rc(x-18,y,18,d,TW()) + `<text x="${x+40}" y="${y+d-60}" font-size="90" fill="#7d7366">⇠ 扫地机</text>`;
     case 'kbar': {
       const cd = Math.min(580, d), dw = Math.min(600, w*.55), sw = w - 60 - dw, bd = ov('board');
       const op = ov('open') === 'open', ext = !op ? '' : bd === 'west' ? rc(x-370,y+d-cd+20,370,cd-40,'#efeee9','stroke-dasharray="6 4" fill-opacity=".6"') : bd === 'south' ? rc(x+40,y+d,sw-40,500,'#efeee9','stroke-dasharray="6 4" fill-opacity=".6"') : '';   // 抽拉桌板拉出时才画
-      return ext + rc(x,y,w,d,'#efeee9') + rc(x,y+d-cd,w,cd,c) + rc(x+w-dw-20,y+d-cd,dw,cd,'#c9ced2') + ln(x,y+d-cd,x+w,y+d-cd,DASH) + rc(x,y,20,d,'#d6b78c');
+      return ext + rc(x,y,w,d,'#efeee9') + rc(x,y+d-cd,w,cd,c) + rc(x+w-dw-20,y+d-cd,dw,cd,'#c9ced2') + ln(x,y+d-cd,x+w,y+d-cd,DASH) + rc(x,y,20,d,TW());
     }
     case 'sofa2': {
       const a = 120, sw = (w - 2*a)/2;
@@ -855,10 +871,10 @@ function furnSVG(t,w,d,c,op){
     }
     case 'entrycab': {
       const lw = Math.min(670, w*.6);
-      if (ov('layout') === 'b') return rc(x,y,w,d,c) + ln(x+lw,y,x+lw,y+d) + ln(x+lw/2,y+d-60,x+lw/2,y+d) + ln(x,y,x+lw,y+d,DASH) + ln(x+lw,y,x,y+d,DASH) + rc(x+lw+20,y+d-30,w-lw-40,30,'#d6b78c');
-      let s = rc(x,y,w,d,c) + rc(x,y,lw,70,'#d6b78c') + ln(x+lw,y,x+lw,y+d);
+      if (ov('layout') === 'b') return rc(x,y,w,d,c) + ln(x+lw,y,x+lw,y+d) + ln(x+lw/2,y+d-60,x+lw/2,y+d) + ln(x,y,x+lw,y+d,DASH) + ln(x+lw,y,x,y+d,DASH) + rc(x+lw+20,y+d-30,w-lw-40,30,TW());
+      let s = rc(x,y,w,d,c) + rc(x,y,lw,70,TW()) + ln(x+lw,y,x+lw,y+d);
       for (let k = x + 30; k < x + lw; k += 60) s += ln(k,y,k,y+70);
-      return s + rc(x+lw+20,y+d-30,w-lw-40,30,'#d6b78c') + ln(x+lw,y,x+w,y+d,DASH);
+      return s + rc(x+lw+20,y+d-30,w-lw-40,30,TW()) + ln(x+lw,y,x+w,y+d,DASH);
     }
     case 'wardrobeA': {
       const sw = Math.min(1800, w*.72), x1 = x + sw;
@@ -1060,7 +1076,9 @@ function renderSel(){
   $('#gSel').innerHTML = s;
 }
 
+let libTheme = null;                            // 家具库缩图用的木色：全屋配色变了（含撤销 / 导入）就重画
 function renderAll(){
+  const th = JSON.stringify(state.theme); if (th !== libTheme){ libTheme = th; buildLib(); }
   renderGrid(); renderRooms(); renderFurn(); renderWalls(); renderLabels(); renderMeasure(); renderSel(); renderPanel(); updateHeader();
   window.View3D?.sync();
 }
@@ -1097,7 +1115,10 @@ function overviewPanel(){
     return `<tr><td><span class="sw" style="background:${MATS[m].sw}"></span>${nm(MATS[m].name)}</td><td class="r">${fmt(a,1)} m²</td><td class="r">¥${Math.round(c).toLocaleString()}</td></tr>`; }).join('');
   const dem = state.demolished.map(id => WALLS[+id.slice(1)]);
   const demLen = dem.reduce((a,w) => a + Math.max(w[2]-w[0], w[3]-w[1]), 0) / 1000;
+  const pal = Object.entries(THEME).map(([k, vals]) => `<div class="optrow"><span>${k === 'door' ? tr('柜体门片', 'Cabinet fronts') : tr('木色（台面 · 层板 · 格栅）', 'Wood (tops · shelves · slats)')}</span>
+    <div class="optbtns">${Object.entries(vals).map(([v, [zh, en, col]]) => `<button class="btn${themeKey(k) === v ? ' on' : ''}" data-theme="${k}" data-val="${v}"><i class="chip" style="background:${col}"></i>${tr(zh, en)}</button>`).join('')}</div></div>`).join('');
   return `
+  <section><h3>${tr('全屋配色','Home Palette')} <small>${tr('自订柜体、木格栅一起换色','applies to all built-in cabinets and slats')}</small></h3><div class="opts" style="margin-top:4px">${pal}</div></section>
   <section><h3>${tr('房间面积','Room Areas')} <small>${tr('点击查看 / 更换地面','Click to view / change flooring')}</small></h3>
     <table>${rows}</table>
     <div class="total"><span>${tr('套内使用面积','Net floor area')}</span><b>${fmt(tot)} m²</b></div>
@@ -1139,6 +1160,10 @@ function bindOverview(){
   document.querySelectorAll('#panel tr[data-room]').forEach(tr => tr.onclick = () => { select({kind:'room', id:tr.dataset.room}); if (is3D()) window.View3D.flyToRoom(tr.dataset.room); });
   $('#clearMeasure').onclick = () => state.measures.length && mutate(() => state.measures = []);
   $('#clearFurn').onclick = clearLayout;
+  document.querySelectorAll('#panel [data-theme]').forEach(b => b.onclick = () => {
+    const k = b.dataset.theme, v = b.dataset.val; if (themeKey(k) === v) return;
+    mutate(() => state.theme = {...state.theme, [k]: v});
+  });
 }
 
 // 底部浮动工具条：触屏没有键盘，旋转 / 复制 / 删除都放在这里
@@ -1230,6 +1255,7 @@ function furnPanel(f){
       <label>${tr('旋转','Rotation')} (°)<input type="number" id="fR" value="${f.rot}" step="15"></label>
       <label>${tr('离地高度','Elevation')} (mm)<input type="number" id="fE" value="${f.elev || 0}" min="0" step="5"></label>
       <label>${tr('颜色','Color')}<input type="color" id="fC" value="${f.color}"></label>
+      ${SWATCHES[f.type] ? `<div class="full optbtns">${SWATCHES[f.type].map(([zh, en, col]) => `<button class="btn${f.color.toLowerCase() === col ? ' on' : ''}" data-swatch="${col}"><i class="chip" style="background:${col}"></i>${tr(zh, en)}</button>`).join('')}</div>` : ''}
     </div>
     <div class="muted" style="margin-top:8px">${tr('占地面积','Footprint')} ${fmt(f.w*f.d/1e6)} m²</div>${optPanel(f)}
     <div class="actions">
@@ -1256,6 +1282,7 @@ function bindFurnPanel(f){
   num('#fX', (g,v) => g.cx = v); num('#fY', (g,v) => g.cy = v); num('#fR', (g,v) => g.rot = norm(v));
   num('#fE', (g,v) => { v = Math.max(0, Math.round(v)); if (v) g.elev = v; else delete g.elev; });   // 3D 中的离地高度（台面 / 层板上的家电）
   $('#fC').onchange = e => upd(g => g.color = e.target.value);
+  document.querySelectorAll('#panel [data-swatch]').forEach(b => b.onclick = () => { if (f.color.toLowerCase() !== b.dataset.swatch) upd(g => g.color = b.dataset.swatch); });
   document.querySelectorAll('#panel [data-opt]').forEach(b => b.onclick = () => { if (optOf(f, b.dataset.opt) !== b.dataset.val) upd(g => setOpt(g, b.dataset.opt, b.dataset.val)); });
   $('#aRot').onclick = () => rotateSel(90);
   $('#aDup').onclick = duplicateSel;
@@ -1963,7 +1990,7 @@ const ceramic = (o = {}) => mat('#fbfbf9', {roughness:.12, ...o});
 const fabric = c => mat(c, {roughness:.96});
 const woodM = c => mat(c, {roughness:.55});
 // 统一柜体风格：门片 / 柜身 = 白色木纹，台面 / 层板 = 日系浅橡木（木纹贴图，按颜色 + 纹理方向缓存）
-const CAB_STYLE = {door:'#f3f1ec', top:'#d6b78c'};
+const CAB_STYLE = {door:'#f3f1ec', top:'#d6b78c'};                 // 实际颜色由全屋配色（THEME / state.theme）在 sync() 时写入
 const grainCache = {};
 function grainMat(base, vertical, o = {}){
   const key = base + vertical; if (grainCache[key]) return grainCache[key];
@@ -2453,8 +2480,8 @@ function buildFurniture(f){
       // 中间约 800：整格连台面一起拉出的设备抽屉（重型全展开滑轨装在两侧立板上），放 Apple TV、HA Green、Switch 底座、Wi-Fi 路由器；
       //   抽屉箱深度比柜体短 100，后方是固定理线槽：背板装多孔插座 / 网路面板，墙内预埋管从这里出线；台面盖板向后延伸盖住理线槽
       //   正面不做衬板（镂空透气、信号穿透），抽屉背板开大孔，线材留 50–60 cm 余长
-      // 样式（VARIANTS.tvstand2）：open 设备抽屉关闭 / 拉出 25 cm（3D 点一下切换）；front 木格栅 / 藤编；wood 日系橡木 / 胡桃木（台面、格栅、框）
-      const wc = WOOD_TONE[optOf(f, 'wood')], rattan = optOf(f, 'front') === 'rattan', po = optOf(f, 'open') === 'open' ? .25 : 0;
+      // 样式（VARIANTS.tvstand2）：open 设备抽屉关闭 / 拉出 25 cm（3D 点一下切换）；front 木格栅 / 藤编；wood 跟全屋木色 / 日系橡木 / 胡桃木（台面、格栅、框）
+      const wc = optOf(f, 'wood') === 'theme' ? CAB_STYLE.top : WOOD_TONE[optOf(f, 'wood')], rattan = optOf(f, 'front') === 'rattan', po = optOf(f, 'open') === 'open' ? .25 : 0;
       const cm = cabDoorM(), tm = grainMat(wc, false, {roughness:.4}), sm = mat(wc, {roughness:.45}), bk = grainMat(wc, true, {roughness:.5});
       const H = .4, kick = .06, tt = .03, t = .018, gb = Math.min(.05, d*.15), bd = d - gb, z0 = bz + gb, zf = bz + d, hb = H - tt - kick;
       const mid = Math.min(.8, w*.45), sw = (w - mid)/2, xm0 = -w/2 + sw, cw = .1;
@@ -3281,7 +3308,8 @@ function buildLabels(){
 // 只重建变化的部分
 function sync(force){
   if (!inited || (!active && !force)) return;
-  const a = JSON.stringify([state.rooms, state.demolished, opt.cut]), f = JSON.stringify(state.furniture), l = JSON.stringify([state.rooms, opt.cut]);
+  CAB_STYLE.door = themeColor('door'); CAB_STYLE.top = themeColor('wood');          // 全屋配色 → 柜体材质
+  const th = JSON.stringify(state.theme), a = JSON.stringify([state.rooms, state.demolished, opt.cut, th]), f = JSON.stringify([state.furniture, th]), l = JSON.stringify([state.rooms, opt.cut]);
   if (force || a !== sigArch){ sigArch = a; buildArch(); }
   if (force || f !== sigFurn){ sigFurn = f; buildFurn(); }
   if (force || l !== sigLabels){ sigLabels = l; buildLabels(); }
