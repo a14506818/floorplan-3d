@@ -517,6 +517,11 @@ const VARIANTS = {
     front: {label:['门片', 'Fronts'], values:{slat:['木格栅', 'Wood slats'], rattan:['藤编', 'Rattan']}, def:'slat'},
     wood:  {label:['木色', 'Wood tone'], values:{oak:['日系橡木', 'Oak'], walnut:['胡桃木', 'Walnut']}, def:'oak'},
   },
+  kbarA:      {open:{label:['抽拉桌板', 'Pull-out board'], values:{closed:['收起', 'Stowed'], open:['拉出', 'Pulled out']}, def:'closed', click:true}},
+  kbarB:      {open:{label:['抽拉桌板', 'Pull-out board'], values:{closed:['收起', 'Stowed'], open:['拉出', 'Pulled out']}, def:'closed', click:true}},
+  wardrobeC:  {open:{label:['折门', 'Bi-fold doors'], values:{closed:['关闭', 'Closed'], open:['打开', 'Open']}, def:'closed', click:true}},
+  // 滑门的左右以站在房间 B 面对衣柜为准（Styler 在左手边 = 局部 -x）；3 片三轨，可三片叠到同一边（空出约 2/3）
+  wardrobeB2: {open:{label:['滑门', 'Sliding doors'], values:{closed:['关闭', 'Closed'], left:['全部滑到左边', 'All to the left'], open:['打开中段', 'Middle open'], right:['全部滑到右边', 'All to the right']}, def:'closed', click:true}},
 };
 const WOOD_TONE = {oak:'#d6b78c', walnut:'#6b4c35'};
 // 读取选项值：存档里没有或值不合法时回到默认值（旧存档、手改 JSON 都安全）
@@ -526,6 +531,15 @@ function optVal(type, opts, k){
   return typeof v === 'string' && Object.hasOwn(o.values, v) ? v : o.def;
 }
 const optOf = (f, k) => optVal(f.type, f.opts, k);
+// 房间 B 滑门（三轨）三片的左缘位置 [左片（后轨）, 中片（中轨）, 右片（前轨）]：L = 门洞左缘（Styler 侧）、W = 门洞宽、pw = 单片宽；
+// 每片各走一条轨道，可以完全叠在一起；2D（mm）与 3D（m）共用
+function slidePos(st, L, W, pw){
+  const R = L + W, c = L + (W - pw)/2;
+  return st === 'open' ? [L, L, R - pw]                              // 中片推到左边叠在左片上，空出中段
+       : st === 'left' ? [L, L, L]                                   // 全部滑到左边，空出右边约 2/3
+       : st === 'right' ? [R - pw, R - pw, R - pw]                   // 全部滑到右边，空出左边约 2/3
+       : [L, c, R - pw];                                             // 关闭：三片各盖一段，相邻两片各搭一点
+}
 // 写入选项值：每次换一个新对象，避免「复制」出来的家具共用同一个 opts
 function setOpt(f, k, v){
   const o = VARIANTS[f.type]?.[k]; if (!o || !Object.hasOwn(o.values, v)) return false;
@@ -657,10 +671,11 @@ function buildDefs(){
 
 /* ======================= 家具图例 ======================= */
 const ST = 'stroke="#3d3a34" stroke-width="1" vector-effect="non-scaling-stroke"';
-const rc = (x,y,w,h,f,ex='') => `<rect x="${x}" y="${y}" width="${Math.max(0,w)}" height="${Math.max(0,h)}" fill="${f}" ${ST} ${ex}/>`;
-const ec = (cx,cy,rx,ry,f,ex='') => `<ellipse cx="${cx}" cy="${cy}" rx="${Math.max(0,rx)}" ry="${Math.max(0,ry)}" fill="${f}" ${ST} ${ex}/>`;
-const ln = (x1,y1,x2,y2,ex='') => `<line x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}" ${ST} ${ex}/>`;
-const pa = (d,f='none',ex='') => `<path d="${d}" fill="${f}" ${ST} ${ex}/>`;
+// ex（额外属性）放在 ST 前面：HTML 遇到重复属性只认第一个，这样传入的 stroke-width 等才能盖过默认值
+const rc = (x,y,w,h,f,ex='') => `<rect x="${x}" y="${y}" width="${Math.max(0,w)}" height="${Math.max(0,h)}" fill="${f}" ${ex} ${ST}/>`;
+const ec = (cx,cy,rx,ry,f,ex='') => `<ellipse cx="${cx}" cy="${cy}" rx="${Math.max(0,rx)}" ry="${Math.max(0,ry)}" fill="${f}" ${ex} ${ST}/>`;
+const ln = (x1,y1,x2,y2,ex='') => `<line x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}" ${ex} ${ST}/>`;
+const pa = (d,f='none',ex='') => `<path d="${d}" fill="${f}" ${ex} ${ST}/>`;
 const DASH = 'stroke-dasharray="4 3"';
 
 function furnSVG(t,w,d,c,op){
@@ -695,7 +710,8 @@ function furnSVG(t,w,d,c,op){
       let s = rc(x,y,w,d,c) + ln(x+60,0,x+w-60,0);
       for (let i = 0; i < np; i++){
         const L = x + 18 + bw*i, R = L + bw, right = i === np - 1 && np > 1, h = right ? R : L, k = right ? -1 : 1;
-        s += ln(h,y+d,h+k*cx,y+d+cy,DASH) + ln(h+k*cx,y+d+cy,h+k*2*cx,y+d,DASH);
+        s += ov('open') === 'open' ? ln(h,y+d,h+k*cx,y+d+cy,DASH) + ln(h+k*cx,y+d+cy,h+k*2*cx,y+d,DASH)
+          : ln(L+4,y+d-10,R-4,y+d-10,'stroke-width="2"') + ln(L+p,y+d-30,L+p,y+d);            // 关闭：门片 + 折缝
       }
       return s;
     }
@@ -808,7 +824,7 @@ function furnSVG(t,w,d,c,op){
     case 'ktower': return rc(x,y,w,d,c) + ln(x,y,x+w,y+d,DASH) + ln(x+w,y,x,y+d,DASH) + rc(x-18,y,18,d,'#d6b78c') + `<text x="${x+40}" y="${y+d-60}" font-size="90" fill="#7d7366">⇠ 扫地机</text>`;
     case 'kbar': case 'kbarA': case 'kbarB': {
       const cd = Math.min(580, d), dw = Math.min(600, w*.55), sw = w - 60 - dw;
-      const ext = t === 'kbarA' ? rc(x-370,y+d-cd+20,370,cd-40,'#efeee9','stroke-dasharray="6 4" fill-opacity=".6"') : t === 'kbarB' ? rc(x+40,y+d,sw-40,500,'#efeee9','stroke-dasharray="6 4" fill-opacity=".6"') : '';
+      const op = ov('open') === 'open', ext = !op ? '' : t === 'kbarA' ? rc(x-370,y+d-cd+20,370,cd-40,'#efeee9','stroke-dasharray="6 4" fill-opacity=".6"') : t === 'kbarB' ? rc(x+40,y+d,sw-40,500,'#efeee9','stroke-dasharray="6 4" fill-opacity=".6"') : '';   // 抽拉桌板拉出时才画
       return ext + rc(x,y,w,d,'#efeee9') + rc(x,y+d-cd,w,cd,c) + rc(x+w-dw-20,y+d-cd,dw,cd,'#c9ced2') + ln(x,y+d-cd,x+w,y+d-cd,DASH) + rc(x,y,20,d,'#d6b78c');
     }
     case 'sofa2': {
@@ -832,7 +848,7 @@ function furnSVG(t,w,d,c,op){
     case 'wardrobeB2': {
       const nw = Math.min(700, w*.3), W = w - nw - 43, pw = (W + 60)/3, L = x + nw + 12;
       return rc(x,y,w,d,c) + ln(x+nw,y,x+nw,y+d) + ln(x+nw,y+d/2,x+w,y+d/2,DASH) + rc(x,y,nw,d,'none',DASH)
-        + ln(L,y+d-58,L+pw,y+d-58,'stroke-width="3"') + ln(L+W-pw,y+d-58,L+W,y+d-58,'stroke-width="3"') + ln(L+W/2-pw/2,y+d-26,L+W/2+pw/2,y+d-26,'stroke-width="3"');
+        + slidePos(ov('open'), L, W, pw).map((p, i) => ln(p,y+d-76+i*30,p+pw,y+d-76+i*30,'stroke-width="3"')).join('');   // 三轨：左片后轨、中片中轨、右片前轨
     }
     case 'wardrobeB': {
       const nw = Math.min(700, w*.4);
@@ -2157,7 +2173,7 @@ function buildFurniture(f){
     case 'kbar': case 'kbarA': case 'kbarB': {
       // A 版：西段最上层改 K&B 隐藏式辅助桌面 ATI23980（最小柜深 400、拉出 370、30 kg），往西拉出延长吧台；抽头 100 高、外贴同款木格栅
       // B 版：西段最上层改 ATI25480（最小柜深 550、拉出 500、40 kg），往南（厨房侧）拉出当备餐台；抽头亮白 + 铝条
-      // 桌板 18 mm、在石英台面下方，拉出后比吧台面低约 3–4 cm；滑轨铝合金香槟金；模型呈拉出状态
+      // 桌板 18 mm、在石英台面下方，拉出后比吧台面低约 3–4 cm；滑轨铝合金香槟金；样式 open：收起（抽头与柜面齐平）/ 拉出（3D 点一下切换）
       // 转角吧台：W1130 × D850（下柜深 580 + 北侧吧椅伸脚 270），台面 875 白石英；局部 +z = 南（面厨房，亮面白），-z = 北（面客厅，木格栅）
       // 东端放 Fisher & Paykel DD60DCHX9 双层抽屉洗碗机（嵌入 W600 × D560 × H820，110V）不锈钢面板；西段 490 三抽亮白
       const gm = glossM(), wm = cabDoorM(), qm = quartzM(), lo = .855, cd = Math.min(.58, d - .2), fz = bz + d, cz = fz - cd, dw = .6, ss = mat('#c9cdd0', {metalness:.85, roughness:.28});
@@ -2178,20 +2194,27 @@ function buildFurniture(f){
       const sw = w - .04 - dw - .02, sx0 = -w/2 + .02, sxc = sx0 + sw/2, bt = .018, by = lo - .003 - bt, gold = mat('#c9b48a', {metalness:.75, roughness:.3}), dark = '#1d1c1b';
       if (!pv){ fronts(g, sx0, .1, sw, lo - .1, fz - .02, 1, 3, gm, 'alu'); break; }
       fronts(g, sx0, .1, sw, lo - .1 - hh, fz - .02, 1, 2, gm, 'alu');                                                     // 下方两抽
+      const open = optOf(f, 'open') === 'open';
       if (pv === 'A'){
-        const e = .37, bw = cd - .04, zc = cz + cd/2, xf = -w/2 - .02 - e;
+        // 往西：抽头外贴同款木格栅、木条与下方格栅同一条网格线；e = 拉出量，0 = 收起（抽头衬板 / 格栅与侧面齐平）
+        const e = open ? .37 : 0, zc = cz + cd/2, xo = -w/2 - e;                                                         // xo = 抽头衬板外皮
         g.add(box(sw, hh - .004, .02, gm, sxc, lo - hh + .002, fz - .01));                                                // 厨房侧顶带封板
-        g.add(box(.005, hh - .02, bw, dark, -w/2 + .012, lo - hh + .01, zc));                                              // 抽出后的开口
-        g.add(box(e + .02, bt, bw - .02, qm, -w/2 - e/2, by, zc));                                                         // 桌板（拉出段）
-        [-1, 1].forEach(k => g.add(box(e + .3, .035, .012, gold, -w/2 - e/2 + .15, by - .035, zc + k*(bw/2 - .03))));     // 滑轨
-        g.add(box(.018, hh - .004, bw, bk, xf + .009, lo - hh + .002, zc));                                                 // 抽头：同木衬板 + 格栅
-        for (let z = cz + .03; z < fz - .015; z += .06) g.add(box(.02, hh - .004, .03, sm, xf - .01, lo - hh + .002, z));
+        g.add(box(.018, hh - .004, cd - .004, bk, xo + .009, lo - hh + .002, zc));                                         // 抽头衬板
+        for (let z = bz + .03; z < bz + d - .015; z += .06) if (z > cz) g.add(box(.02, hh - .004, .03, sm, xo - .01, lo - hh + .002, z));   // 抽头格栅
+        if (open){
+          g.add(box(.005, hh - .02, cd - .04, dark, -w/2 + .012, lo - hh + .01, zc));                                      // 拉出后的开口
+          g.add(box(e - .018, bt, cd - .06, qm, -w/2 - (e - .018)/2, by, zc));                                             // 桌板外露段（接在抽头内侧）
+          [-1, 1].forEach(k => g.add(box(e + .3, .035, .012, gold, -w/2 - e/2 + .15, by - .035, zc + k*(cd/2 - .05))));   // 滑轨
+        }
       } else {
-        const e = .5, bw = sw - .04;
-        g.add(box(bw, hh - .02, .005, dark, sxc, lo - hh + .01, fz - .022));                                               // 抽出后的开口
-        g.add(box(bw - .02, bt, e + .02, qm, sxc, by, fz + e/2));                                                          // 桌板（拉出段）
-        [-1, 1].forEach(k => g.add(box(.012, .035, e + .3, gold, sxc + k*(bw/2 - .03), by - .035, fz + e/2 - .15)));
-        g.add(rbox(sw - .004, hh - .004, .02, gm, sxc, lo - hh + .002, fz - .01 + e + .02, .003), box(sw - .02, .012, .024, aluM(), sxc, lo - .016, fz + e + .02));   // 抽头 + 铝条
+        // 往南：抽头亮白 + 铝条，与下方抽屉同一平面；e = 拉出量，0 = 收起
+        const e = open ? .5 : 0, bw = sw - .04;
+        fronts(g, sx0, lo - hh, sw, hh, fz - .02 + e, 1, 1, gm, 'alu');                                                  // 抽头
+        if (open){
+          g.add(box(bw, hh - .02, .005, dark, sxc, lo - hh + .01, fz - .022));                                             // 拉出后的开口
+          g.add(box(bw - .02, bt, e, qm, sxc, by, fz - .02 + e/2));                                                        // 桌板外露段（接在抽头背面）
+          [-1, 1].forEach(k => g.add(box(.012, .035, e + .3, gold, sxc + k*(bw/2 - .03), by - .035, fz - .02 + e/2 - .15)));   // 滑轨
+        }
       }
       break;
     }
@@ -2284,9 +2307,10 @@ function buildFurniture(f){
         else if (kind === 'double'){ hang(xa, xb, 1.95, .7); hang(xa, xb, 1.0, .6); }
         else { hang(xa, xb, 1.95, 1.05); basket(xa + .02, xb - .02, yb + .03); basket(xa + .02, xb - .02, yb + .28); }
       }
-      // 对折门：左组铰南侧板、右组铰北侧板，中间对开；南组展开示意
+      // 对折门：左组铰南侧板、右组铰北侧板，中间对开；样式 open：关闭 / 两组都折开（3D 点一下切换）
+      const opened = optOf(f, 'open') === 'open';
       for (let i = 0; i < np; i++){
-        const L = x0 + t + pw*i, Rr = L + pw, p = pw/2 - .003, right = i === np - 1 && np > 1, open = i === 0, s = right ? -1 : 1, h0 = right ? Rr - .003 : L + .003;
+        const L = x0 + t + pw*i, Rr = L + pw, p = pw/2 - .003, right = i === np - 1 && np > 1, open = opened, s = right ? -1 : 1, h0 = right ? Rr - .003 : L + .003;
         if (open){ const ex = h0 + s*p*Math.cos(a), ez = zf + p*Math.sin(a); leaf(h0, zf, ex, ez); leaf(ex, ez, h0 + s*2*p*Math.cos(a), zf); g.add(box(.012, .35, .012, al, ex, 1.0, ez + .012)); }
         else { leaf(h0, zf, h0 + s*p, zf); leaf(h0 + s*p, zf, h0 + s*2*p, zf); g.add(box(.012, .35, .012, al, h0 + s*p, 1.0, zf + .016)); }   // 折缝处竖向铝条把手
       }
@@ -2888,9 +2912,9 @@ function buildFurniture(f){
       break;
     }
     case 'wardrobeB2': {
-      // 房间 B 衣柜 B 版 W2895 × D650（滑门双轨约占 8–10 cm，柜内净深约 54 cm 可正面挂衣）：局部 -x 端 = Styler 柜格 700（北墙侧），其余 2195 = 滑门衣柜
+      // 房间 B 衣柜 B 版 W2895 × D650（滑门三轨约占 10–11 cm，柜内净深约 53 cm 可正面挂衣）：局部 -x 端 = Styler 柜格 700（北墙侧），其余 2195 = 滑门衣柜
       // 全长统一分线：0–2400 下段、2400–顶 顶柜（按压开启，分门与下方对齐）；Styler 柜格也做到 2400（上方散热空间更大）
-      // 滑门为内嵌式（轨道藏在柜体内，门面与侧板、立板、顶柜同一平面）：3 片约 750 宽、双轨（两侧片在后轨、中片在前轨）；与 Styler 柜格以 25 mm 立板交接，门停在立板上
+      // 滑门为内嵌式（轨道藏在柜体内，门面与侧板、立板、顶柜同一平面）：3 片约 750 宽、三轨（每片一条轨道，可叠到同一边）、凹入式把手；与 Styler 柜格以 25 mm 立板交接，门停在立板上
       // 柜内无中间立板，黑色金属衣柜系统（壁挂立柱）分三区：Styler 侧 = 长衣吊杆 + 两层抽篮；中 = 上下双吊杆；矮柜侧（下段被矮柜侧板挡 440）= 层架 + 短吊杆 + 换季收纳箱
       const cm = cabDoorM(), met = blackMetal(), al = aluM(), H = 2.98, dt = 2.4, t = .018, tv = .025, kick = .06, nw = Math.min(.7, w*.3), xs = -w/2 + nw, fz = bz + d, zi = bz + t;
       g.add(box(w, dt, t, cm, 0, 0, bz + t/2));                                                                         // 背板
@@ -2917,11 +2941,15 @@ function buildFurniture(f){
         else if (i === 1){ hang(xa, xb, 1.95, .7); hang(xa, xb, 1.0, .6); }
         else { hang(xa, xb, 1.95, .65); shelf(xa, xb, .9); [[.05, '#d8d2c6'], [.4, '#c9c2b4']].forEach(([y, c]) => g.add(rbox(xb - xa - .06, .3, .42, mat(c, {roughness:.8}), (xa + xb)/2, yb + y - .03, zi + .24, .015))); }
       }
-      // 内嵌滑门：上下铝轨 + 3 片（后轨两侧片、前轨中片；中片推到 Styler 侧示意打开中区）
-      const dh = dt - t - yb - .012, ov = .03, pw = (W + 2*ov)/3, zb = fz - .058, zfr = fz - .026;
-      g.add(box(W, .03, .07, al, (L + Rr)/2, dt - t - .03, fz - .045), box(W, .008, .07, al, (L + Rr)/2, yb, fz - .045));
-      const slide = (x0, z) => { g.add(rbox(pw, dh, .02, cm, x0 + pw/2, yb + .008, z, .002)); g.add(box(.012, .35, .006, al, x0 + .03, 1.0, z + .013), box(.012, .35, .006, al, x0 + pw - .03, 1.0, z + .013)); };
-      slide(L, zb); slide(Rr - pw, zb); slide(L + .02, zfr);
+      // 内嵌三轨滑门：上下铝轨（深约 10 cm）+ 3 片，左片走后轨、中片中轨、右片前轨（前轨门面与侧板齐平，其余各退 3 cm）
+      // 凹入式把手（不凸出门面，门片才能互相交错）；样式 open：关闭 / 全部滑到左边 / 打开中段 / 全部滑到右边（见 slidePos）
+      const dh = dt - t - yb - .012, ov = .03, pw = (W + 2*ov)/3, tz = [fz - .076, fz - .046, fz - .016];
+      g.add(box(W, .03, .1, al, (L + Rr)/2, dt - t - .03, fz - .055), box(W, .008, .1, al, (L + Rr)/2, yb, fz - .055));
+      const slide = (x0, z) => {
+        g.add(rbox(pw, dh, .02, cm, x0 + pw/2, yb + .008, z, .002));
+        [x0 + .035, x0 + pw - .035].forEach(x => g.add(box(.018, .3, .003, '#2b2926', x, 1.0, z + .0095), box(.022, .304, .001, al, x, .998, z + .0108)));   // 凹入式把手：暗槽 + 铝边
+      };
+      slidePos(optOf(f, 'open'), L, W, pw).forEach((x, i) => slide(x, tz[i]));
       break;
     }
     case 'wardrobeB': {
