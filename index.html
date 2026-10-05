@@ -87,6 +87,14 @@ tr.click:hover td{background:#faf5ee}
 .total b{color:var(--accent)}
 .muted{color:var(--muted)}
 .form{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.opts{margin-top:12px;display:flex;flex-direction:column;gap:8px}
+.optrow{display:flex;flex-direction:column;gap:4px}
+.optrow>span{font-size:12px;color:var(--muted)}
+.optrow small{margin-left:6px;color:var(--accent)}
+.optbtns{display:flex;flex-wrap:wrap;gap:4px}
+.optbtns .btn{border:1px solid var(--line);background:#fff}
+.optbtns .btn:hover{background:#f2ece2}
+.optbtns .btn.on,.optbtns .btn.on:hover{background:var(--ink);border-color:var(--ink);color:#fff}
 .form label{display:flex;flex-direction:column;gap:3px;font-size:12px;color:var(--muted)}
 .form label.full{grid-column:1/-1}
 .form input,.form select{border:1px solid var(--line);border-radius:6px;padding:5px 7px;background:#fff;width:100%}
@@ -500,6 +508,39 @@ let _n = 1;
 const uid = () => 'f' + Date.now().toString(36) + (_n++);
 const F = (type,name,cx,cy,w,d,rot=0,color,elev) => ({id:uid(),type,name,cx,cy,w,d,rot,color:color||typeColor(type),...(elev ? {elev} : {})});
 
+/* ======================= 家具样式 / 状态 ======================= */
+// 每种家具可宣告多个选项：label = [中文, 英文]；values = {值: [中文, 英文]}（顺序即按钮顺序）；def = 默认值；
+// click:true = 3D 里点一下该家具就在各值之间轮替（同时选中）。选中的值存在 f.opts，跟着存档 / 导出 JSON / 撤销
+const VARIANTS = {
+  tvstand2: {
+    open:  {label:['设备抽屉', 'Device drawer'], values:{closed:['关闭', 'Closed'], open:['拉出', 'Pulled out']}, def:'closed', click:true},
+    front: {label:['门片', 'Fronts'], values:{slat:['木格栅', 'Wood slats'], rattan:['藤编', 'Rattan']}, def:'slat'},
+    wood:  {label:['木色', 'Wood tone'], values:{oak:['日系橡木', 'Oak'], walnut:['胡桃木', 'Walnut']}, def:'oak'},
+  },
+};
+const WOOD_TONE = {oak:'#d6b78c', walnut:'#6b4c35'};
+// 读取选项值：存档里没有或值不合法时回到默认值（旧存档、手改 JSON 都安全）
+function optVal(type, opts, k){
+  const o = VARIANTS[type]?.[k]; if (!o) return undefined;
+  const v = opts && typeof opts === 'object' ? opts[k] : undefined;
+  return typeof v === 'string' && Object.hasOwn(o.values, v) ? v : o.def;
+}
+const optOf = (f, k) => optVal(f.type, f.opts, k);
+// 写入选项值：每次换一个新对象，避免「复制」出来的家具共用同一个 opts
+function setOpt(f, k, v){
+  const o = VARIANTS[f.type]?.[k]; if (!o || !Object.hasOwn(o.values, v)) return false;
+  const base = f.opts && typeof f.opts === 'object' && !Array.isArray(f.opts) ? f.opts : {};
+  f.opts = {...base, [k]:v}; return true;
+}
+// 3D 点一下：把可点选项切到下一个值（一次 mutate = 可撤销、会存档）；该家具没有可点选项时回传 false
+function clickToggle(id){
+  const f = getF(id), vs = f && VARIANTS[f.type], k = vs && Object.keys(vs).find(k => vs[k].click);
+  if (!k) return false;
+  const vals = Object.keys(vs[k].values), next = vals[(vals.indexOf(optOf(f, k)) + 1) % vals.length];
+  mutate(() => { const g = getF(id); if (g) setOpt(g, k, next); });
+  return true;
+}
+
 // 预设家具 = 2026-10-04 使用者在页面上摆好的状态（文件 → 导出方案 JSON）
 function defaultFurniture(){ return [
   // 房间 A（运动 / 工作室）
@@ -622,8 +663,8 @@ const ln = (x1,y1,x2,y2,ex='') => `<line x1="${x1}" y1="${y1}" x2="${x2}" y2="${
 const pa = (d,f='none',ex='') => `<path d="${d}" fill="${f}" ${ST} ${ex}/>`;
 const DASH = 'stroke-dasharray="4 3"';
 
-function furnSVG(t,w,d,c){
-  const x = -w/2, y = -d/2, m = Math.min(w,d);
+function furnSVG(t,w,d,c,op){
+  const x = -w/2, y = -d/2, m = Math.min(w,d), ov = k => optVal(t, op, k);
   switch (t){
     case 'bed': {
       let s = rc(x,y,w,d,'#fbf8f2','rx="30"') + rc(x,y,w,Math.min(90,d*.05),shade(c,.62),'rx="20"');
@@ -671,9 +712,18 @@ function furnSVG(t,w,d,c){
     case 'baycushion': return rc(x,y,w,d,c,'rx="60"') + rc(x+60,y+80,w-120,Math.min(300,d*.2),'#fff','rx="60"') + rc(x+60,y+d-80-Math.min(300,d*.2),w-120,Math.min(300,d*.2),'#fff','rx="60"');
     case 'coffeetable': return rc(x,y,w,d,c,'rx="80"') + rc(x+60,y+60,w-120,d-120,shade(c,1.06),'rx="50"');
     case 'tvstand2': {
-      const mid = Math.min(800, w*.45), sw = (w - mid)/2, gb = Math.min(50, d*.15);
-      let s = rc(x,y+gb,w,d-gb,c) + rc(x+sw,y+gb,mid,100,'#3a3632','fill-opacity=".25"') + ln(x+sw,y+gb+100,x+w-sw,y+gb+100,DASH) + ln(x+sw,y+gb,x+sw,y+d) + ln(x+w-sw,y+gb,x+w-sw,y+d) + rc(x,y+d-25,w,25,'#d6b78c');
-      for (let k = x+30; k < x+w; k += 60) s += ln(k,y+d-25,k,y+d,'opacity=".5"');
+      const mid = Math.min(800, w*.45), sw = (w - mid)/2, gb = Math.min(50, d*.15), wc = WOOD_TONE[ov('wood')], rat = ov('front') === 'rattan', po = ov('open') === 'open' ? 250 : 0;
+      const n = parseInt(wc.slice(1), 16), lc = (.299*(n>>16&255) + .587*(n>>8&255) + .114*(n&255))/255 < .5 ? '#efe4d2' : '#3d3a34';   // 深木色用浅色纹路线
+      const L = (x1,y1,x2,y2) => `<line x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}" stroke="${lc}" stroke-width="1" vector-effect="non-scaling-stroke" opacity=".6"/>`;
+      const strip = (x0, ww, yy) => {                                                    // 门面：格栅竖线 / 藤编交叉线
+        let r = rc(x0,yy,ww,25,wc);
+        if (rat) for (let k = x0+10; k+20 < x0+ww; k += 40) r += L(k,yy,k+20,yy+25) + L(k+20,yy,k,yy+25);
+        else for (let k = x0+30; k < x0+ww; k += 60) r += L(k,yy,k,yy+25);
+        return r;
+      };
+      let s = rc(x,y+gb,w,d-gb,c) + rc(x+sw,y+gb,mid,100,'#3a3632','fill-opacity=".25"') + ln(x+sw,y+gb+100,x+w-sw,y+gb+100,DASH) + ln(x+sw,y+gb,x+sw,y+d) + ln(x+w-sw,y+gb,x+w-sw,y+d);
+      s += strip(x,sw,y+d-25) + strip(x+w-sw,sw,y+d-25) + strip(x+sw,mid,y+d-25+po);
+      if (po) s += rc(x+sw,y+d,mid,po-25,'none',DASH);                                    // 设备抽屉拉出的范围
       return s;
     }
     case 'paintwall': return rc(x,y,w,d,c) + ln(x+Math.min(764,w*.4),y,x+Math.min(764,w*.4),y+d);
@@ -845,7 +895,7 @@ function renderFurn(){
     const fs = Math.max(80, Math.min(170, Math.min(f.w,f.d)*.2));
     const label = Math.min(f.w,f.d) >= 380 && !NOLABEL.includes(f.type)
       ? `<text transform="rotate(${-f.rot})" font-size="${fs}" text-anchor="middle" dominant-baseline="central" fill="#4a443c" opacity=".8" pointer-events="none">${esc(nm(f.name))}</text>` : '';
-    return `<g class="furn" data-fid="${f.id}" transform="translate(${f.cx} ${f.cy}) rotate(${f.rot})">${furnSVG(f.type,f.w,f.d,f.color)}${label}</g>`;
+    return `<g class="furn" data-fid="${f.id}" transform="translate(${f.cx} ${f.cy}) rotate(${f.rot})">${furnSVG(f.type,f.w,f.d,f.color,f.opts)}${label}</g>`;
   }).join('');
 }
 
@@ -1145,13 +1195,21 @@ function furnPanel(f){
       <label>${tr('离地高度','Elevation')} (mm)<input type="number" id="fE" value="${f.elev || 0}" min="0" step="5"></label>
       <label>${tr('颜色','Color')}<input type="color" id="fC" value="${f.color}"></label>
     </div>
-    <div class="muted" style="margin-top:8px">${tr('占地面积','Footprint')} ${fmt(f.w*f.d/1e6)} m²</div>
+    <div class="muted" style="margin-top:8px">${tr('占地面积','Footprint')} ${fmt(f.w*f.d/1e6)} m²</div>${optPanel(f)}
     <div class="actions">
       <button class="btn" id="aRot">${tr('旋转 90°','Rotate 90°')}</button><button class="btn" id="aDup">${tr('复制','Duplicate')}</button>
       <button class="btn" id="aTop">${tr('置于顶层','Bring to front')}</button><button class="btn" id="aBot">${tr('置于底层','Send to back')}</button>
       <button class="btn danger" id="aDel">${tr('删除','Delete')}</button><button class="btn" id="back">${tr('← 返回','← Back')}</button>
     </div></section>
   <section class="muted" style="font-size:12px">${tr('拖动家具移动；拖动上方圆点旋转；拖动右下角方块调整尺寸。开启「贴墙吸附」后靠近墙面会自动贴齐。', 'Drag to move; drag the top dot to rotate; drag the bottom-right square to resize. With "Wall snap" on, items snap flush to nearby walls.')}</section>`;
+}
+// 样式区块：每个选项一排按钮；可在 3D 点一下切换的选项加注记
+function optPanel(f){
+  const vs = VARIANTS[f.type]; if (!vs) return '';
+  return `<div class="opts"><b>${tr('样式','Style')}</b>${Object.entries(vs).map(([k, o]) => `<div class="optrow">
+    <span>${tr(...o.label)}${o.click ? `<small>${tr('3D 中点一下切换', 'click in 3D to toggle')}</small>` : ''}</span>
+    <div class="optbtns">${Object.entries(o.values).map(([v, l]) => `<button class="btn${optOf(f, k) === v ? ' on' : ''}" data-opt="${k}" data-val="${v}">${tr(...l)}</button>`).join('')}</div>
+  </div>`).join('')}</div>`;
 }
 function bindFurnPanel(f){
   const upd = (fn) => mutate(() => { const g = getF(f.id); if (g) fn(g); });
@@ -1162,6 +1220,7 @@ function bindFurnPanel(f){
   num('#fX', (g,v) => g.cx = v); num('#fY', (g,v) => g.cy = v); num('#fR', (g,v) => g.rot = norm(v));
   num('#fE', (g,v) => { v = Math.max(0, Math.round(v)); if (v) g.elev = v; else delete g.elev; });   // 3D 中的离地高度（台面 / 层板上的家电）
   $('#fC').onchange = e => upd(g => g.color = e.target.value);
+  document.querySelectorAll('#panel [data-opt]').forEach(b => b.onclick = () => { if (optOf(f, b.dataset.opt) !== b.dataset.val) upd(g => setOpt(g, b.dataset.opt, b.dataset.val)); });
   $('#aRot').onclick = () => rotateSel(90);
   $('#aDup').onclick = duplicateSel;
   $('#aDel').onclick = deleteSel;
@@ -1176,7 +1235,7 @@ function rotateSel(d){ if (ui.sel?.kind==='furn') mutate(() => { const f = getF(
 function deleteSel(){ if (ui.sel?.kind==='furn'){ const id = ui.sel.id; ui.sel = null; mutate(() => state.furniture = state.furniture.filter(f => f.id !== id)); } }
 function duplicateSel(){
   if (ui.sel?.kind !== 'furn') return;
-  const f = getF(ui.sel.id), n = {...f, id:uid(), cx:f.cx+200, cy:f.cy+200};
+  const f = getF(ui.sel.id), n = {...f, id:uid(), cx:f.cx+200, cy:f.cy+200, ...(f.opts ? {opts:{...f.opts}} : {})};
   ui.sel = {kind:'furn', id:n.id}; mutate(() => state.furniture.push(n));
 }
 // 新放下的家具若压在墙 / 窗上，沿穿透较浅的方向推出来，刚好贴墙
@@ -1731,13 +1790,13 @@ function init(){
     const tap = downAt && Math.hypot(e.clientX-downAt[0], e.clientY-downAt[1]) <= TAP;
     if (look?.id === e.pointerId){
       look = null;
-      if (tap){ const h = pick(e); if (h?.door && h.dist < 3.5) h.door.open = !h.door.open; }   // 漫游时点门开关
+      if (tap){ const h = pick(e); if (h?.door && h.dist < 3.5) h.door.open = !h.door.open; else if (h?.fid && h.dist < 3.5) window.clickToggle(h.fid); }   // 漫游时点门开关 / 切换家具
       return;
     }
     if (anim || opt.mode !== 'orbit' || !tap) return;
     const h = pick(e);
     if (h?.door) h.door.open = !h.door.open;
-    else if (h?.fid) window.select({kind:'furn', id:h.fid});
+    else if (h?.fid){ window.select({kind:'furn', id:h.fid}); window.clickToggle(h.fid); }   // 点一下 = 选中 + 切换（有可点选项的家具）
     else if (h?.room) window.select({kind:'room', id:h.room});
     else window.select(null);
   });
@@ -1887,6 +1946,24 @@ function grainMat(base, vertical, o = {}){
 }
 // 矿物涂料（司曼特类）：浅暖灰底 + 柔和云纹，雾面
 const WALL_PAINT = '#dcd8d1';
+// 藤编（开放式藤网 cane webbing）：透明底 + 竖、横、两向斜藤条，alphaTest 镂空；每种面板尺寸一个材质（约 2.4 cm 一格）
+let caneTex = null;
+const caneCache = new Map();
+function rattanMat(w, h){
+  const key = w.toFixed(3) + 'x' + h.toFixed(3); if (caneCache.has(key)) return caneCache.get(key);
+  if (!caneTex){
+    const T = 64, cv = document.createElement('canvas'); cv.width = cv.height = T;
+    const g = cv.getContext('2d'); g.lineCap = 'round';
+    const strand = (x1, y1, x2, y2, wd) => [['#a27c4f', wd + 1.5], ['#dcc095', wd]].forEach(([c, lw]) => { g.strokeStyle = c; g.lineWidth = lw; g.beginPath(); g.moveTo(x1, y1); g.lineTo(x2, y2); g.stroke(); });
+    strand(0, 0, T, T, 4); strand(T, 0, 0, T, 4);                                                   // 两向斜藤（在下）
+    [-3.5, 3.5].forEach(o => { strand(T/2 + o, -2, T/2 + o, T + 2, 3); strand(-2, T/2 + o, T + 2, T/2 + o, 3); });   // 竖、横成对藤条
+    caneTex = new THREE.CanvasTexture(cv); caneTex.colorSpace = THREE.SRGBColorSpace;
+    caneTex.wrapS = caneTex.wrapT = THREE.RepeatWrapping; caneTex.anisotropy = renderer.capabilities.getMaxAnisotropy();
+  }
+  const t = caneTex.clone(); t.repeat.set(w/.024, h/.024); t.needsUpdate = true;
+  const m = new THREE.MeshStandardMaterial({map:t, alphaTest:.5, side:THREE.DoubleSide, roughness:.65});
+  caneCache.set(key, m); return m;
+}
 function plasterMat(base){
   const key = 'plaster' + base; if (grainCache[key]) return grainCache[key];
   const R = rng(parseInt(base.slice(1), 16)), cv = document.createElement('canvas'), L = 512; cv.width = cv.height = L;
@@ -2326,21 +2403,35 @@ function buildFurniture(f){
       break;
     }
     case 'tvstand2': {
-      // 落地电视柜：总高 400（踢脚 60 内缩 40 + 柜体 + 30 厚日系木实木台面）；离墙 50、柜体深 380；HomePod 放两侧固定台面上
-      // 两侧约 500：一般抽屉（格栅 + 同木色衬板，按压开启），抽屉内净约 W400 × D320 × H245：A4 文件夹（约 310 × 230）可平放叠放，或横向立放
+      // 落地电视柜：总高 400（踢脚 60 内缩 40 + 柜体 + 30 厚实木台面）；离墙 50、柜体深 380；HomePod 放两侧固定台面上
+      // 两侧约 500：一般抽屉（按压开启），抽屉内净约 W400 × D320 × H245：A4 文件夹（约 310 × 230）可平放叠放，或横向立放
       // 中间约 800：整格连台面一起拉出的设备抽屉（重型全展开滑轨装在两侧立板上），放 Apple TV、HA Green、Switch 底座、Wi-Fi 路由器；
       //   抽屉箱深度比柜体短 100，后方是固定理线槽：背板装多孔插座 / 网路面板，墙内预埋管从这里出线；台面盖板向后延伸盖住理线槽
-      //   正面格栅不做衬板（镂空透气、信号穿透），抽屉背板开大孔，线材留 50–60 cm 余长；模型中拉出 25 cm 示意
-      const cm = cabDoorM(), tm = cabTopM(), sm = cabSlatM(), bk = cabSlatBackM(), H = .4, kick = .06, tt = .03, t = .018, gb = Math.min(.05, d*.15), bd = d - gb, z0 = bz + gb, zf = bz + d, hb = H - tt - kick;
-      const mid = Math.min(.8, w*.45), sw = (w - mid)/2, xm0 = -w/2 + sw, cw = .1, po = .25;
-      const slats = (x0, ww, z, y0 = kick + .005, h = hb - .01) => { for (let x = x0 + .03; x < x0 + ww - .015; x += .06) g.add(box(.03, h, .02, sm, x, y0, z)); };
+      //   正面不做衬板（镂空透气、信号穿透），抽屉背板开大孔，线材留 50–60 cm 余长
+      // 样式（VARIANTS.tvstand2）：open 设备抽屉关闭 / 拉出 25 cm（3D 点一下切换）；front 木格栅 / 藤编；wood 日系橡木 / 胡桃木（台面、格栅、框）
+      const wc = WOOD_TONE[optOf(f, 'wood')], rattan = optOf(f, 'front') === 'rattan', po = optOf(f, 'open') === 'open' ? .25 : 0;
+      const cm = cabDoorM(), tm = grainMat(wc, false, {roughness:.4}), sm = mat(wc, {roughness:.45}), bk = grainMat(wc, true, {roughness:.5});
+      const H = .4, kick = .06, tt = .03, t = .018, gb = Math.min(.05, d*.15), bd = d - gb, z0 = bz + gb, zf = bz + d, hb = H - tt - kick;
+      const mid = Math.min(.8, w*.45), sw = (w - mid)/2, xm0 = -w/2 + sw, cw = .1;
+      // 门面：木格栅（两侧加同木色衬板）或藤编（木框 + 透空藤网，两侧透出白木纹抽屉面）
+      const face = (par, x0, ww, backed) => {
+        const y0 = kick + .005, h = hb - .01, z = zf - .01;
+        if (!rattan){
+          if (backed) par.add(box(ww - .02, h, .012, bk, x0 + ww/2, y0, zf - .026));
+          for (let x = x0 + .03; x < x0 + ww - .015; x += .06) par.add(box(.03, h, .02, sm, x, y0, z));
+          return;
+        }
+        const fr = .03, cx = x0 + ww/2, iw = ww - .004 - 2*fr, ih = h - 2*fr;
+        par.add(box(ww - .004, fr, .02, sm, cx, y0, z), box(ww - .004, fr, .02, sm, cx, y0 + h - fr, z));
+        par.add(box(fr, ih, .02, sm, x0 + .002 + fr/2, y0 + fr, z), box(fr, ih, .02, sm, x0 + ww - .002 - fr/2, y0 + fr, z));
+        par.add(box(iw, ih, .002, rattanMat(iw, ih), cx, y0 + fr, z));
+      };
       g.add(box(w - .08, kick, bd - .06, '#2e2c2a', 0, 0, z0 + (bd - .06)/2));                                             // 内缩踢脚
       g.add(box(w - .14, .006, .01, glowMat('#fff7e6', '#ffe9c4', .5), 0, kick - .008, zf - .06));                          // 踢脚暖光
       // 两侧一般抽屉：固定台面
       [-w/2, w/2 - sw].forEach(x0 => {
-        const mx = x0 + sw/2;
-        g.add(box(sw - .004, hb, bd - .032, cm, mx, kick, z0 + (bd - .032)/2), box(sw - .02, hb - .01, .012, bk, mx, kick + .005, zf - .026));
-        slats(x0, sw, zf - .01); g.add(rbox(sw - .003, tt, bd, tm, mx, H - tt, z0 + bd/2, .004));
+        g.add(box(sw - .004, hb, bd - .032, cm, x0 + sw/2, kick, z0 + (bd - .032)/2));
+        face(g, x0, sw, true); g.add(rbox(sw - .003, tt, bd, tm, x0 + sw/2, H - tt, z0 + bd/2, .004));
       });
       // 中间：固定柜身（两侧立板 + 底板 + 背板）+ 理线槽
       const mx = xm0 + mid/2;
@@ -2357,15 +2448,16 @@ function buildFurniture(f){
       dg.add(box(dw - 2*t, t, dd - .02, cm, mx, dy, dz0 + (dd - .02)/2));
       dg.add(box(.12, dh, t, cm, mx - dw/2 + .06, dy, dz0 + t/2), box(.12, dh, t, cm, mx + dw/2 - .06, dy, dz0 + t/2));     // 背板开大孔
       dg.add(rbox(mid - .003, tt, bd, tm, mx, H - tt, z0 + bd/2, .004));                                                   // 台面盖板（向后盖住理线槽）
-      for (let x = xm0 + .03; x < xm0 + mid - .015; x += .06) dg.add(box(.03, hb - .01, .02, sm, x, kick + .005, zf - .01));   // 镂空格栅（无衬板）
+      face(dg, xm0, mid, false);                                                                                       // 镂空门面（无衬板）
       const y = dy + t, dz = dz0 + dd*.5;
-      dg.add(rbox(.093, .031, .093, mat('#1c1c1e', {roughness:.35}), mx - .27, y, dz, .012));                              // Apple TV 4K
-      dg.add(rbox(.112, .032, .112, mat('#3a3d40', {roughness:.5}), mx - .13, y, dz, .01));                                // Home Assistant Green
-      dg.add(rbox(.173, .104, .054, mat('#2a2a2c', {roughness:.4}), mx + .04, y, dz, .008));                               // Switch 底座（直立）
-      dg.add(rbox(.18, .06, .18, mat('#f2f1ee', {roughness:.4}), mx + .23, y, dz, .02));                                   // Wi-Fi 路由器
+      // 设备由左到右排在抽屉内净宽（约 ±0.35）里，彼此不重叠；线从背板大孔（约 ±0.25）穿出
+      dg.add(rbox(.093, .031, .093, mat('#1c1c1e', {roughness:.35}), mx - .29, y, dz, .012));                              // Apple TV 4K
+      dg.add(rbox(.112, .032, .112, mat('#3a3d40', {roughness:.5}), mx - .165, y, dz, .01));                               // Home Assistant Green
+      dg.add(rbox(.173, .104, .054, mat('#2a2a2c', {roughness:.4}), mx - .005, y, dz, .008));                              // Switch 底座（直立）
+      dg.add(rbox(.18, .06, .18, mat('#f2f1ee', {roughness:.4}), mx + .245, y, dz, .02));                                  // Wi-Fi 路由器
       const cab = mat('#1a1a1b', {roughness:.6});
-      [[mx - .27, .015], [mx - .13, .015], [mx + .04, .02], [mx + .23, .02]].forEach(([x, h], k) =>
-        g.add(tube([[x, y + h, dz0 + po + .02], [x*.8 + mx*.2, y + .02, z0 + cw*.6], [mx - .2 + k*.09, kick + .1, z0 + t + .03]], .0035, cab, 16)));   // 线材余长
+      [[mx - .23, .015], [mx - .165, .015], [mx - .005, .02], [mx + .23, .02]].forEach(([x, h], k) =>                      // 线材余长：从背板大孔穿到理线槽插座
+        g.add(tube([[x, y + h, dz0 + po + .02], [x*.8 + mx*.2, y + .02, z0 + cw*.6], [mx - .2 + k*.09, kick + .1, z0 + t + .03]], .0035, cab, 16)));
       g.add(dg);
       break;
     }
@@ -3262,7 +3354,7 @@ function pick(e){
     if (o.userData.door) return {door:o.userData.door, dist:h.distance};
     if (o.userData.room) return {room:o.userData.room};
     while (o && !o.userData.fid && o !== scene) o = o.parent;
-    if (o?.userData.fid) return {fid:o.userData.fid};
+    if (o?.userData.fid) return {fid:o.userData.fid, dist:h.distance};
     return null;                                     // 被墙体挡住
   }
   return null;
@@ -3376,7 +3468,7 @@ function stepWalk(dt){
 addEventListener('keydown', e => {
   if (!active || e.target.matches('input,select,textarea')) return;
   keys[e.code] = true;
-  if (opt.mode === 'walk' && e.code === 'KeyE'){ const h = pick(); if (h?.door && h.dist < 2.5) h.door.open = !h.door.open; }
+  if (opt.mode === 'walk' && e.code === 'KeyE'){ const h = pick(); if (h?.door && h.dist < 2.5) h.door.open = !h.door.open; else if (h?.fid && h.dist < 2.5) window.clickToggle(h.fid); }
 });
 addEventListener('keyup', e => keys[e.code] = false);
 
