@@ -358,7 +358,7 @@ const LANGS = ['zh', 'zht', 'en'];             // 简体 / 繁體（台湾用字
 let LANG = (() => { try { const l = localStorage.getItem(LANG_KEY); return LANGS.includes(l) ? l : 'zht'; } catch(e) { return 'zht'; } })();
 // 简 → 繁：先按词替换一字多义的字，再逐字查表（表由 OpenCC s2tw 按本页用到的字生成）
 const S2T_PHRASES = [['布置','佈置'],['布局','佈局'],['台面','檯面'],['复制','複製']];
-const S2T = new Map(('与與两兩个個为為书書于於仅僅从從价價会會传傳体體余餘侧側倾傾储儲儿兒关關内內写寫净淨准準击擊则則刚剛删刪制製办辦动動势勢区區单單占佔卧臥卫衛厅廳历歷压壓厨廚双雙发發变變叶葉后後吗嗎听聽启啟哑啞围圍图圖圆圓场場坐座块塊垫墊墙牆处處备備复復头頭妆妝婴嬰实實宽寬对對导導层層屉屜属屬岛島带帶干乾并並库庫应應开開当當径徑态態总總悬懸懒懶户戶护護拟擬择擇挂掛挡擋挤擠损損换換据據摆擺摇搖撑撐数數无無时時显顯暂暫机機杂雜杆桿条條来來松鬆构構柜櫃标標栈棧栏欄样樣梁樑棱稜椭橢横橫橱櫥气氣没沒注註浅淺测測浏瀏游遊滚滾满滿灯燈灵靈点點热熱状狀独獨环環现現电電画畫监監盖蓋盘盤砖磚确確离離积積称稱竖豎筑築签籤类類约約级級线線结結绕繞绘繪给給统統继繼绿綠缀綴编編缝縫缩縮网網联聯脚腳获獲虚虛装裝见見视視览覽触觸计計认認让讓议議记記设設识識译譯该該语語请請读讀调調负負败敗质質贴貼赶趕转轉轮輪软軟轴軸轻輕载載较較辅輔辑輯边邊过過这這进進远遠适適选選邻鄰里裡针針钢鋼钮鈕铰鉸铺鋪销銷锁鎖键鍵镜鏡长長门門闭閉闲閒间間阅閱阳陽阴陰阶階随隨隐隱静靜页頁顶頂项項顺順颜顏飘飄飞飛马馬鸟鳥齐齊龙龍华華纳納篮籃运運笼籠炉爐强強脱脫烟煙锅鍋栅柵矿礦涂塗还還旧舊档檔预預').match(/../gu).map(p => [...p]));
+const S2T = new Map(('与與两兩个個为為书書于於仅僅从從价價会會传傳体體余餘侧側倾傾储儲儿兒关關内內写寫净淨准準击擊则則刚剛删刪制製办辦动動势勢区區单單占佔卧臥卫衛厅廳历歷压壓厨廚双雙发發变變叶葉后後吗嗎听聽启啟哑啞围圍图圖圆圓场場坐座块塊垫墊墙牆处處备備复復头頭妆妝婴嬰实實宽寬对對导導层層屉屜属屬岛島带帶干乾并並库庫应應开開当當径徑态態总總悬懸懒懶户戶护護拟擬择擇挂掛挡擋挤擠损損换換据據摆擺摇搖撑撐数數无無时時显顯暂暫机機杂雜杆桿条條来來松鬆构構柜櫃标標栈棧栏欄样樣梁樑棱稜椭橢横橫橱櫥气氣没沒注註浅淺测測浏瀏游遊滚滾满滿灯燈灵靈点點热熱状狀独獨环環现現电電画畫监監盖蓋盘盤砖磚确確离離积積称稱竖豎筑築签籤类類约約级級线線结結绕繞绘繪给給统統继繼绿綠缀綴编編缝縫缩縮网網联聯脚腳获獲虚虛装裝见見视視览覽触觸计計认認让讓议議记記设設识識译譯该該语語请請读讀调調负負败敗质質贴貼赶趕转轉轮輪软軟轴軸轻輕载載较較辅輔辑輯边邊过過这這进進远遠适適选選邻鄰里裡针針钢鋼钮鈕铰鉸铺鋪销銷锁鎖键鍵镜鏡长長门門闭閉闲閒间間阅閱阳陽阴陰阶階随隨隐隱静靜页頁顶頂项項顺順颜顏飘飄飞飛马馬鸟鳥齐齊龙龍华華纳納篮籃运運笼籠炉爐强強脱脫烟煙锅鍋栅柵矿礦涂塗还還旧舊档檔预預镂鏤轨軌').match(/../gu).map(p => [...p]));
 const s2t = s => S2T_PHRASES.reduce((a, [f, t]) => a.replaceAll(f, t), s).replace(/[\u3400-\u9fff]/g, c => S2T.get(c) || c);
 const tr = (zh, en) => LANG === 'en' ? en : LANG === 'zht' ? s2t(zh) : zh;
 // 内置的房间 / 材料 / 家具名称存的是中文；英文界面下显示译名，用户自己改过的名称原样显示
@@ -368,7 +368,7 @@ const NAMES_EN = {
   '房间 A':'Room A', '房间 B':'Room B', '房间 C':'Room C', '上卫浴':'Bath 1', '下卫浴':'Bath 2 (En-suite)', '阳台':'Balcony',
   '运动垫':'Exercise Mat', '蒸气电子衣橱':'Steam Closet', '升降桌':'Standing Desk', '鞋柜 · 玄关柜':'Entry Cabinet', '小喋笼':'Pet Cage',
   '咖啡机 · 微波炉高柜':'Appliance Tower', '吧台':'Bar Counter', '电陶炉':'Cooktop', '活动桌':'Side Table', '双人床 6×7 尺':'Double Bed 6×7',
-  '收纳柜':'Storage Cabinet', 'LG WashCombo 洗脱烘':'LG WashCombo Washer-Dryer', '林内 16L 强排热水器':'Rinnai 16L Gas Water Heater', 'LG Styler 电子衣橱':'LG Styler Steam Closet', '日立 313L 冰箱':'Hitachi 313L Fridge', '鸟笼桌（2× Vision S01）':'Bird Cage Table (2× Vision S01)', '矮柜 · 茶镜 · 吊柜':'Base Cabinet · Bronze Mirror · Wall Cabinet', '衣柜 + 电子衣橱柜格':'Wardrobe + Styler Niche', '到顶衣柜（推拉 + 对开）':'Full-height Wardrobe (Sliding + Hinged)', '墙面：格栅 + 淡茶镜':'Wall: Slats + Bronze Mirror', '肋木架（wall bar）':'Wall Bars', '玄关柜（木格栅）':'Entry Cabinet (Wood Slats)', '玄关柜 B（全柜体）':'Entry Cabinet B (All Storage)', '电器高柜（含扫地机器人柜）':'Appliance Tower (Robot Vacuum Bay)', '电器柜 B（开放 + 格栅）':'Appliance Unit B (Open + Slats)', 'BALMUDA The Range 微波烤箱':'BALMUDA The Range', 'Philips Baristina BeanSwap 咖啡机':'Philips Baristina BeanSwap', '大同 10 人份电锅':'Tatung Rice Cooker (10-cup)', '转角吧台（含洗碗机）':'Corner Bar (Dishwasher)', '细扶手头枕沙发':'Slim-arm Sofa with Headrests', 'NITORI A 型吊挂架':'NITORI A-frame Clothes Rack', '添可 S9 洗地机':'Tineco FLOOR ONE S9', '木作床组（2 单人床 + 床头柜 + 吊柜）':'Built-in Bed (2 Singles + Headboard + Wall Cabinet)', '洗衣篮柜':'Laundry Cabinet', '转角吧台 A（西侧抽拉桌板 · 延长）':'Corner Bar A (West Pull-out Extension)', '转角吧台 B（南侧抽拉桌板 · 备餐）':'Corner Bar B (South Pull-out Prep Board)', 'Prime 4 电动升降桌':'Prime 4 Standing Desk', '电视墙矿物涂料（含卫浴隐藏门）':'TV Wall Mineral Paint (with Hidden Bath Door)', '电视柜（落地 · 可抽出 · 木格栅）':'TV Console (Floor · Roll-out · Wood Slats)', 'HomePod（第 2 代）':'HomePod (2nd gen)', '衣柜 B（滑门 + 金属衣柜系统 + Styler 柜格）':'Wardrobe B (Sliding Doors + Metal System + Styler Niche)', '衣柜（折门 + 金属衣柜系统）':'Wardrobe (Bi-fold Doors + Metal System)', '一字型厨具（水槽 · 电磁炉 · 抽油烟机 · 烘碗机）':'Kitchen Run (Sink · Induction · Hood · Dish Dryer)', '梳妆椅':'Dresser Stool',
+  '收纳柜':'Storage Cabinet', 'LG WashCombo 洗脱烘':'LG WashCombo Washer-Dryer', '林内 16L 强排热水器':'Rinnai 16L Gas Water Heater', 'LG Styler 电子衣橱':'LG Styler Steam Closet', '日立 313L 冰箱':'Hitachi 313L Fridge', '鸟笼桌（2× Vision S01）':'Bird Cage Table (2× Vision S01)', '矮柜 · 茶镜 · 吊柜':'Base Cabinet · Bronze Mirror · Wall Cabinet', '衣柜 + 电子衣橱柜格':'Wardrobe + Styler Niche', '到顶衣柜（推拉 + 对开）':'Full-height Wardrobe (Sliding + Hinged)', '墙面：格栅 + 淡茶镜':'Wall: Slats + Bronze Mirror', '肋木架（wall bar）':'Wall Bars', '玄关柜（木格栅）':'Entry Cabinet (Wood Slats)', '玄关柜 B（全柜体）':'Entry Cabinet B (All Storage)', '电器高柜（含扫地机器人柜）':'Appliance Tower (Robot Vacuum Bay)', '电器柜 B（开放 + 格栅）':'Appliance Unit B (Open + Slats)', 'BALMUDA The Range 微波烤箱':'BALMUDA The Range', 'Philips Baristina BeanSwap 咖啡机':'Philips Baristina BeanSwap', '大同 10 人份电锅':'Tatung Rice Cooker (10-cup)', '转角吧台（含洗碗机）':'Corner Bar (Dishwasher)', '细扶手头枕沙发':'Slim-arm Sofa with Headrests', 'NITORI A 型吊挂架':'NITORI A-frame Clothes Rack', '添可 S9 洗地机':'Tineco FLOOR ONE S9', '木作床组（2 单人床 + 床头柜 + 吊柜）':'Built-in Bed (2 Singles + Headboard + Wall Cabinet)', '洗衣篮柜':'Laundry Cabinet', '电器柜':'Appliance Unit', '衣柜 + Styler 柜格':'Wardrobe + Styler Niche', '转角吧台 A（西侧抽拉桌板 · 延长）':'Corner Bar A (West Pull-out Extension)', '转角吧台 B（南侧抽拉桌板 · 备餐）':'Corner Bar B (South Pull-out Prep Board)', 'Prime 4 电动升降桌':'Prime 4 Standing Desk', '电视墙矿物涂料（含卫浴隐藏门）':'TV Wall Mineral Paint (with Hidden Bath Door)', '电视柜（落地 · 可抽出 · 木格栅）':'TV Console (Floor · Roll-out · Wood Slats)', 'HomePod（第 2 代）':'HomePod (2nd gen)', '衣柜 B（滑门 + 金属衣柜系统 + Styler 柜格）':'Wardrobe B (Sliding Doors + Metal System + Styler Niche)', '衣柜（折门 + 金属衣柜系统）':'Wardrobe (Bi-fold Doors + Metal System)', '一字型厨具（水槽 · 电磁炉 · 抽油烟机 · 烘碗机）':'Kitchen Run (Sink · Induction · Hood · Dish Dryer)', '梳妆椅':'Dresser Stool',
   '主卧飘窗':'Master Bay Window', '子女房飘窗':"Children's Bay Window",
   '橡木地板':'Oak Flooring', '胡桃木地板':'Walnut Flooring', '800 地砖':'800 Tile', '600 地砖':'600 Tile', '大理石':'Marble',
   '300 防滑砖':'300 Anti-slip Tile', '水磨石':'Terrazzo', '满铺地毯':'Wall-to-wall Carpet',
@@ -478,7 +478,7 @@ const LIB = [
     ['bed','双人床 1.8m',1800,2000,'#c9d6df'],['bed','双人床 1.5m',1500,2000,'#d8c7dc'],['bed','单人床',1200,2000,'#e8d5b5'],
     ['crib','婴儿床',1250,700,'#efe3d0'],['nightstand','床头柜',450,400,'#e8dccb'],['wardrobe','衣柜',2000,600,'#f3f1ec'],
     ['wardrobe','小衣柜',1200,550,'#f3f1ec'],['hangrack','NITORI A 型吊挂架',850,400,'#d2a874'],['dresser','梳妆台',1000,450,'#efe6d8'],['desk','书桌',1200,600,'#e2cfb4'],
-    ['chair','椅子',450,480,'#cfc6b8'],['bookshelf','书架',800,300,'#e2cfb4'],['roomAwall','墙面：格栅 + 淡茶镜',2061,45,'#d9c9b2'],['wallbar','肋木架（wall bar）',600,150,'#d6b78c'],['deskcab','矮柜 · 茶镜 · 吊柜',1790,440,'#f3f1ec'],['wardrobeB','衣柜 + 电子衣橱柜格',2895,600,'#f3f1ec'],['wardrobeB2','衣柜 B（滑门 + 金属衣柜系统 + Styler 柜格）',2895,650,'#f3f1ec'],['wardrobeA','到顶衣柜（推拉 + 对开）',2520,400,'#f3f1ec'],['wardrobeC','衣柜（折门 + 金属衣柜系统）',1813,600,'#f3f1ec'],['entrycab','玄关柜（木格栅）',1110,400,'#f3f1ec'],['entrycab2','玄关柜 B（全柜体）',1110,400,'#f3f1ec'],['ktower','电器高柜（含扫地机器人柜）',800,600,'#f7f7f4'],['ktower2','电器柜 B（开放 + 格栅）',800,600,'#f7f7f4'],['kitchen','一字型厨具（水槽 · 电磁炉 · 抽油烟机 · 烘碗机）',2044,600,'#f7f7f4'],['balmuda','BALMUDA The Range 微波烤箱',456,392,'#f1f0ec'],['baristina','Philips Baristina BeanSwap 咖啡机',220,450,'#efece4'],['ricecooker','大同 10 人份电锅',350,295,'#d4bfa5'],['kbar','转角吧台（含洗碗机）',1130,850,'#f7f7f4'],['kbarA','转角吧台 A（西侧抽拉桌板 · 延长）',1130,850,'#f7f7f4'],['kbarB','转角吧台 B（南侧抽拉桌板 · 备餐）',1130,850,'#f7f7f4'],['bedC','木作床组（2 单人床 + 床头柜 + 吊柜）',2115,2300,'#c9d6df'],['baycushion','飘窗垫',520,1800,'#e7dccd']]},
+    ['chair','椅子',450,480,'#cfc6b8'],['bookshelf','书架',800,300,'#e2cfb4'],['roomAwall','墙面：格栅 + 淡茶镜',2061,45,'#d9c9b2'],['wallbar','肋木架（wall bar）',600,150,'#d6b78c'],['deskcab','矮柜 · 茶镜 · 吊柜',1790,440,'#f3f1ec'],['wardrobeB','衣柜 + Styler 柜格',2895,650,'#f3f1ec'],['wardrobeA','到顶衣柜（推拉 + 对开）',2520,400,'#f3f1ec'],['wardrobeC','衣柜（折门 + 金属衣柜系统）',1813,600,'#f3f1ec'],['entrycab','玄关柜',1110,400,'#f3f1ec'],['ktower','电器柜',800,600,'#f7f7f4'],['kitchen','一字型厨具（水槽 · 电磁炉 · 抽油烟机 · 烘碗机）',2044,600,'#f7f7f4'],['balmuda','BALMUDA The Range 微波烤箱',456,392,'#f1f0ec'],['baristina','Philips Baristina BeanSwap 咖啡机',220,450,'#efece4'],['ricecooker','大同 10 人份电锅',350,295,'#d4bfa5'],['kbar','转角吧台（含洗碗机）',1130,850,'#f7f7f4'],['bedC','木作床组（2 单人床 + 床头柜 + 吊柜）',2115,2300,'#c9d6df'],['baycushion','飘窗垫',520,1800,'#e7dccd']]},
   {cat:'客厅', items:[
     ['sofa','三人沙发',2400,900,'#b7c4b0'],['sofa','双人沙发',1700,880,'#c3cbd6'],['cornersofa','转角沙发',2800,1700,'#b7c4b0'],['sofa2','细扶手头枕沙发',1640,900,'#dcd8cf'],
     ['armchair','单人沙发',850,850,'#d6b99a'],['beanbag','懒人沙发',800,800,'#e0b98f'],['coffeetable','茶几',1300,650,'#e8dccb'],
@@ -506,7 +506,7 @@ const typeColor = t => { for (const c of LIB) for (const i of c.items) if (i[0]=
 
 let _n = 1;
 const uid = () => 'f' + Date.now().toString(36) + (_n++);
-const F = (type,name,cx,cy,w,d,rot=0,color,elev) => ({id:uid(),type,name,cx,cy,w,d,rot,color:color||typeColor(type),...(elev ? {elev} : {})});
+const F = (type,name,cx,cy,w,d,rot=0,color,elev,opts) => ({id:uid(),type,name,cx,cy,w,d,rot,color:color||typeColor(type),...(elev ? {elev} : {}),...(opts ? {opts} : {})});
 
 /* ======================= 家具样式 / 状态 ======================= */
 // 每种家具可宣告多个选项：label = [中文, 英文]；values = {值: [中文, 英文]}（顺序即按钮顺序）；def = 默认值；
@@ -517,11 +517,19 @@ const VARIANTS = {
     front: {label:['门片', 'Fronts'], values:{slat:['木格栅', 'Wood slats'], rattan:['藤编', 'Rattan']}, def:'slat'},
     wood:  {label:['木色', 'Wood tone'], values:{oak:['日系橡木', 'Oak'], walnut:['胡桃木', 'Walnut']}, def:'oak'},
   },
-  kbarA:      {open:{label:['抽拉桌板', 'Pull-out board'], values:{closed:['收起', 'Stowed'], open:['拉出', 'Pulled out']}, def:'closed', click:true}},
-  kbarB:      {open:{label:['抽拉桌板', 'Pull-out board'], values:{closed:['收起', 'Stowed'], open:['拉出', 'Pulled out']}, def:'closed', click:true}},
+  // when(f)：该选项只在条件成立时出现在面板、也只在那时可被 3D 点一下切换
+  kbar: {
+    board: {label:['抽拉桌板', 'Pull-out board'], values:{none:['无', 'None'], west:['往西延长（A）', 'West extension (A)'], south:['往南备餐（B）', 'South prep (B)']}, def:'none'},
+    open:  {label:['桌板', 'Board'], values:{closed:['收起', 'Stowed'], open:['拉出', 'Pulled out']}, def:'closed', click:true, when:f => optOf(f, 'board') !== 'none'},
+  },
+  entrycab: {layout:{label:['款式', 'Layout'], values:{a:['A 镂空挂衣', 'A · Open hanging'], b:['B 全柜体', 'B · Full storage']}, def:'a'}},
+  ktower: {style:{label:['款式', 'Layout'], values:{tall:['三格到顶', 'Tall, 3 tiers'], open:['开放 + 格栅', 'Open + slats']}, def:'tall'}},
   wardrobeC:  {open:{label:['折门', 'Bi-fold doors'], values:{closed:['关闭', 'Closed'], open:['打开', 'Open']}, def:'closed', click:true}},
   // 滑门的左右以站在房间 B 面对衣柜为准（Styler 在左手边 = 局部 -x）；3 片三轨，可三片叠到同一边（空出约 2/3）
-  wardrobeB2: {open:{label:['滑门', 'Sliding doors'], values:{closed:['关闭', 'Closed'], left:['全部滑到左边', 'All to the left'], open:['打开中段', 'Middle open'], right:['全部滑到右边', 'All to the right']}, def:'closed', click:true}},
+  wardrobeB: {
+    style: {label:['款式', 'Layout'], values:{doors:['5 门到顶', '5 hinged doors'], slide:['三轨滑门', '3-track sliding']}, def:'doors'},
+    open:  {label:['滑门', 'Sliding doors'], values:{closed:['关闭', 'Closed'], left:['全部滑到左边', 'All to the left'], open:['打开中段', 'Middle open'], right:['全部滑到右边', 'All to the right']}, def:'closed', click:true, when:f => optOf(f, 'style') === 'slide'},
+  },
 };
 const WOOD_TONE = {oak:'#d6b78c', walnut:'#6b4c35'};
 // 读取选项值：存档里没有或值不合法时回到默认值（旧存档、手改 JSON 都安全）
@@ -531,6 +539,17 @@ function optVal(type, opts, k){
   return typeof v === 'string' && Object.hasOwn(o.values, v) ? v : o.def;
 }
 const optOf = (f, k) => optVal(f.type, f.opts, k);
+const optOn = (f, k) => { const o = VARIANTS[f.type]?.[k]; return !!o && (!o.when || o.when(f)); };   // 选项此时是否适用
+// 旧版本类型合并成「同一类型 + 样式」：旧存档 / 导入的 JSON 读进来时转换（fixState），已有的 opts 保留
+const TYPE_MERGE = {kbarA:['kbar', {board:'west'}], kbarB:['kbar', {board:'south'}], entrycab2:['entrycab', {layout:'b'}], ktower2:['ktower', {style:'open'}], wardrobeB2:['wardrobeB', {style:'slide'}]};
+const NAME_MERGE = {'转角吧台 A（西侧抽拉桌板 · 延长）':'转角吧台（含洗碗机）', '转角吧台 B（南侧抽拉桌板 · 备餐）':'转角吧台（含洗碗机）', '玄关柜（木格栅）':'玄关柜', '玄关柜 B（全柜体）':'玄关柜',
+  '电器高柜（含扫地机器人柜）':'电器柜', '电器柜 B（开放 + 格栅）':'电器柜', '衣柜 + 电子衣橱柜格':'衣柜 + Styler 柜格', '衣柜 B（滑门 + 金属衣柜系统 + Styler 柜格）':'衣柜 + Styler 柜格'};
+function migrateF(f){
+  const m = TYPE_MERGE[f.type];
+  if (m){ f.type = m[0]; f.opts = {...m[1], ...(f.opts && typeof f.opts === 'object' && !Array.isArray(f.opts) ? f.opts : {})}; }
+  if (Object.hasOwn(NAME_MERGE, f.name)) f.name = NAME_MERGE[f.name];   // 只改内置的旧名称，使用者自己取的名字不动
+  return f;
+}
 // 房间 B 滑门（三轨）三片的左缘位置 [左片（后轨）, 中片（中轨）, 右片（前轨）]：L = 门洞左缘（Styler 侧）、W = 门洞宽、pw = 单片宽；
 // 每片各走一条轨道，可以完全叠在一起；2D（mm）与 3D（m）共用
 function slidePos(st, L, W, pw){
@@ -548,7 +567,7 @@ function setOpt(f, k, v){
 }
 // 3D 点一下：把可点选项切到下一个值（一次 mutate = 可撤销、会存档）；该家具没有可点选项时回传 false
 function clickToggle(id){
-  const f = getF(id), vs = f && VARIANTS[f.type], k = vs && Object.keys(vs).find(k => vs[k].click);
+  const f = getF(id), vs = f && VARIANTS[f.type], k = vs && Object.keys(vs).find(k => vs[k].click && optOn(f, k));
   if (!k) return false;
   const vals = Object.keys(vs[k].values), next = vals[(vals.indexOf(optOf(f, k)) + 1) % vals.length];
   mutate(() => { const g = getF(id); if (g) setOpt(g, k, next); });
@@ -562,15 +581,15 @@ function defaultFurniture(){ return [
   F('rug','运动垫',640,1250,810,1600,0,'#9aa59a'), F('primedesk','Prime 4 电动升降桌',2010,1910,900,600,90,'#c8a06b'), F('officechair','办公椅',1420,1920,620,620,270,'#4a4f55'),
   F('acwall','挂机空调',1640,2335,900,250,180,'#f6f7f8'),
   // 房间 B
-  F('wardrobeB2','衣柜 B（滑门 + 金属衣柜系统 + Styler 柜格）',325,4008,2895,650,270,'#f3f1ec'), F('styler','LG Styler 电子衣橱',360,5105,600,620,270,'#d9cdb6'),
+  F('wardrobeB','衣柜 + Styler 柜格',325,4008,2895,650,270,'#f3f1ec',0,{style:'slide'}), F('styler','LG Styler 电子衣橱',360,5105,600,620,270,'#d9cdb6'),
   F('deskcab','矮柜 · 茶镜 · 吊柜',1530,2780,1760,440,0,'#f3f1ec'), F('primedesk','Prime 4 电动升降桌',1980,3650,1200,600,90,'#c8a06b'), F('officechair','办公椅',1390,3650,620,620,270,'#4a4f55'),
   F('acwall','挂机空调',1560,5330,900,250,180,'#f6f7f8'),
   // 客厅 · 玄关
-  F('entrycab2','玄关柜 B（全柜体）',3090,200,1110,400,0,'#f3f1ec'), F('sofa2','细扶手头枕沙发',2970,2060,1640,900,270,'#dcd8cf'), F('birdtable','鸟笼桌（2× Vision S01）',2720,3420,1000,400,270,'#d8c2a2'),
+  F('entrycab','玄关柜',3090,200,1110,400,0,'#f3f1ec',0,{layout:'b'}), F('sofa2','细扶手头枕沙发',2970,2060,1640,900,270,'#dcd8cf'), F('birdtable','鸟笼桌（2× Vision S01）',2720,3420,1000,400,270,'#d8c2a2'),
   F('paintwall','电视墙矿物涂料（含卫浴隐藏门）',5218,1465,2930,4,90,'#dcd8d1'), F('tvstand2','电视柜（落地 · 可抽出 · 木格栅）',5005,2015,1800,430,90,'#f3f1ec'), F('homepod','HomePod（第 2 代）',5080,1210,142,142,90,'#2c2d30',400),
   F('homepod','HomePod（第 2 代）',5090,2820,142,142,90,'#2c2d30',400), F('tv','55 寸电视',5160,2010,1230,80,90,'#1d1d1f'),
   // 开放式厨房 / 吧台
-  F('ktower2','电器柜 B（开放 + 格栅）',4920,4616,800,600,90,'#f7f7f4'), F('kbarB','转角吧台 B（南侧抽拉桌板 · 备餐）',4055,4591,1130,850,0,'#f7f7f4'), F('balmuda','BALMUDA The Range 微波烤箱',4850,4460,456,392,90,'#f1f0ec',875),
+  F('ktower','电器柜',4920,4616,800,600,90,'#f7f7f4',0,{style:'open'}), F('kbar','转角吧台（含洗碗机）',4055,4591,1130,850,0,'#f7f7f4',0,{board:'south'}), F('balmuda','BALMUDA The Range 微波烤箱',4850,4460,456,392,90,'#f1f0ec',875),
   F('baristina','Philips Baristina BeanSwap 咖啡机',4880,4860,220,450,90,'#efece4',875), F('ricecooker','大同 10 人份电锅',3790,4800,350,295,0,'#d4bfa5',875), F('barstool','吧椅',3760,3950,420,420,0,'#6b5d4c'),
   F('barstool','吧椅',4330,3950,420,420,0,'#6b5d4c'), F('kitchen','一字型厨具（水槽 · 电磁炉 · 抽油烟机 · 烘碗机）',4920,6038,2044,600,90,'#f7f7f4'), F('hfridge','日立 313L 冰箱',2870,6680,595,650,180,'#f4f3ef'),
   F('floorwasher','添可 S9 洗地机',3400,6830,290,330,180,'#bfc3c6'),
@@ -602,6 +621,7 @@ function load(){
   return null;
 }
 function fixState(s){
+  s.furniture.forEach(migrateF);
   const d = defaultState();
   s.rooms = Object.assign(d.rooms, s.rooms || {});
   s.demolished = s.demolished || []; s.measures = s.measures || [];
@@ -816,15 +836,15 @@ function furnSVG(t,w,d,c,op){
       let s = rc(x,y,40,d,c) + rc(x+w-40,y,40,d,c);
       return s + ln(x+40,y+d*.6,x+w-40,y+d*.6,'stroke-width="3"') + ln(x,y,x,y+d,DASH);
     }
-    case 'ktower2': {
+    case 'ktower': if (ov('style') === 'open') {
       let s = rc(x,y,w,d,c) + rc(x,y,w,350,'none',DASH) + rc(x-20,y,20,d,'#d6b78c');
       for (let k = y + 30; k < y + d; k += 60) s += ln(x-20,k,x,k);
       return s + `<text x="${x+40}" y="${y+d-60}" font-size="90" fill="#7d7366">⇠ 扫地机</text>`;
     }
-    case 'ktower': return rc(x,y,w,d,c) + ln(x,y,x+w,y+d,DASH) + ln(x+w,y,x,y+d,DASH) + rc(x-18,y,18,d,'#d6b78c') + `<text x="${x+40}" y="${y+d-60}" font-size="90" fill="#7d7366">⇠ 扫地机</text>`;
-    case 'kbar': case 'kbarA': case 'kbarB': {
-      const cd = Math.min(580, d), dw = Math.min(600, w*.55), sw = w - 60 - dw;
-      const op = ov('open') === 'open', ext = !op ? '' : t === 'kbarA' ? rc(x-370,y+d-cd+20,370,cd-40,'#efeee9','stroke-dasharray="6 4" fill-opacity=".6"') : t === 'kbarB' ? rc(x+40,y+d,sw-40,500,'#efeee9','stroke-dasharray="6 4" fill-opacity=".6"') : '';   // 抽拉桌板拉出时才画
+    return rc(x,y,w,d,c) + ln(x,y,x+w,y+d,DASH) + ln(x+w,y,x,y+d,DASH) + rc(x-18,y,18,d,'#d6b78c') + `<text x="${x+40}" y="${y+d-60}" font-size="90" fill="#7d7366">⇠ 扫地机</text>`;
+    case 'kbar': {
+      const cd = Math.min(580, d), dw = Math.min(600, w*.55), sw = w - 60 - dw, bd = ov('board');
+      const op = ov('open') === 'open', ext = !op ? '' : bd === 'west' ? rc(x-370,y+d-cd+20,370,cd-40,'#efeee9','stroke-dasharray="6 4" fill-opacity=".6"') : bd === 'south' ? rc(x+40,y+d,sw-40,500,'#efeee9','stroke-dasharray="6 4" fill-opacity=".6"') : '';   // 抽拉桌板拉出时才画
       return ext + rc(x,y,w,d,'#efeee9') + rc(x,y+d-cd,w,cd,c) + rc(x+w-dw-20,y+d-cd,dw,cd,'#c9ced2') + ln(x,y+d-cd,x+w,y+d-cd,DASH) + rc(x,y,20,d,'#d6b78c');
     }
     case 'sofa2': {
@@ -833,9 +853,9 @@ function furnSVG(t,w,d,c,op){
       [0,1].forEach(i => s += rc(x+a+i*sw+10,y+230,sw-20,d-250,shade(c,1.03),'rx="40"') + rc(x+a+i*sw+30,y+20,sw-60,180,shade(c,.86),'rx="60"'));
       return s;
     }
-    case 'entrycab': case 'entrycab2': {
+    case 'entrycab': {
       const lw = Math.min(670, w*.6);
-      if (t === 'entrycab2') return rc(x,y,w,d,c) + ln(x+lw,y,x+lw,y+d) + ln(x+lw/2,y+d-60,x+lw/2,y+d) + ln(x,y,x+lw,y+d,DASH) + ln(x+lw,y,x,y+d,DASH) + rc(x+lw+20,y+d-30,w-lw-40,30,'#d6b78c');
+      if (ov('layout') === 'b') return rc(x,y,w,d,c) + ln(x+lw,y,x+lw,y+d) + ln(x+lw/2,y+d-60,x+lw/2,y+d) + ln(x,y,x+lw,y+d,DASH) + ln(x+lw,y,x,y+d,DASH) + rc(x+lw+20,y+d-30,w-lw-40,30,'#d6b78c');
       let s = rc(x,y,w,d,c) + rc(x,y,lw,70,'#d6b78c') + ln(x+lw,y,x+lw,y+d);
       for (let k = x + 30; k < x + lw; k += 60) s += ln(k,y,k,y+70);
       return s + rc(x+lw+20,y+d-30,w-lw-40,30,'#d6b78c') + ln(x+lw,y,x+w,y+d,DASH);
@@ -845,12 +865,12 @@ function furnSVG(t,w,d,c,op){
       return rc(x,y,w,d,c) + [1,2].map(i => ln(x+sw*i/3,y+d-60,x+sw*i/3,y+d)).join('') + ln(x,y+d-30,x1,y+d-30,DASH)
         + ln(x1,y,x1,y+d) + ln(x1+(w-sw)/2,y+d-60,x1+(w-sw)/2,y+d) + ln(x1,y,x+w,y+d,DASH) + ln(x+w,y,x1,y+d,DASH);
     }
-    case 'wardrobeB2': {
+    case 'wardrobeB': if (ov('style') === 'slide') {
       const nw = Math.min(700, w*.3), W = w - nw - 43, pw = (W + 60)/3, L = x + nw + 12;
       return rc(x,y,w,d,c) + ln(x+nw,y,x+nw,y+d) + ln(x+nw,y+d/2,x+w,y+d/2,DASH) + rc(x,y,nw,d,'none',DASH)
         + slidePos(ov('open'), L, W, pw).map((p, i) => ln(p,y+d-76+i*30,p+pw,y+d-76+i*30,'stroke-width="3"')).join('');   // 三轨：左片后轨、中片中轨、右片前轨
     }
-    case 'wardrobeB': {
+    {
       const nw = Math.min(700, w*.4);
       return rc(x+nw,y,w-nw,d,c) + [1,2,3,4].map(i => ln(x+nw+(w-nw)*i/5,y+d-40,x+nw+(w-nw)*i/5,y+d)).join('') + ln(x+nw,y+d/2,x+w,y+d/2,DASH)
         + rc(x,y,nw,d,'none',DASH);
@@ -1222,7 +1242,7 @@ function furnPanel(f){
 // 样式区块：每个选项一排按钮；可在 3D 点一下切换的选项加注记
 function optPanel(f){
   const vs = VARIANTS[f.type]; if (!vs) return '';
-  return `<div class="opts"><b>${tr('样式','Style')}</b>${Object.entries(vs).map(([k, o]) => `<div class="optrow">
+  return `<div class="opts"><b>${tr('样式','Style')}</b>${Object.entries(vs).filter(([k]) => optOn(f, k)).map(([k, o]) => `<div class="optrow">
     <span>${tr(...o.label)}${o.click ? `<small>${tr('3D 中点一下切换', 'click in 3D to toggle')}</small>` : ''}</span>
     <div class="optbtns">${Object.entries(o.values).map(([v, l]) => `<button class="btn${optOf(f, k) === v ? ' on' : ''}" data-opt="${k}" data-val="${v}">${tr(...l)}</button>`).join('')}</div>
   </div>`).join('')}</div>`;
@@ -2133,8 +2153,8 @@ function buildFurniture(f){
       }
       break;
     }
-    case 'ktower2': {
-      // 电器柜 B：下柜 0–855 深 600（扫地机器人柜，门朝北）、白石英台面 875；875–1557 整段开放放电器（不做层板，背墙延续抹茶玻璃）
+    case 'ktower': if (optOf(f, 'style') === 'open') {
+      // 电器柜「开放 + 格栅」款：下柜 0–855 深 600（扫地机器人柜，门朝北）、白石英台面 875；875–1557 整段开放放电器（不做层板，背墙延续抹茶玻璃）
       // 吊柜 1557–2284 深 350 + 封板到顶，与建商厨具同深同高；南侧不做侧板，与建商厨具连成一线
       // 北侧（面客厅）木格栅：下段机器人柜门（深 600，有衬板，门下留 120）；台面以上与吊柜同深 350——中段电器区镂空格栅（无衬板，透气）、上段到顶（有衬板）
       const gm = glossM(), qm = quartzM(), sm = cabSlatM(), bm = cabSlatBackM(), H = 2.98, lo = .855, ct = .875, ub = 1.557, ut = 2.284, ud = .35, gap = .12, xn = -w/2;
@@ -2154,8 +2174,8 @@ function buildFurniture(f){
       slats(ub, H, true, ud);
       break;
     }
-    case 'ktower': {
-      // 电器高柜（IE-03 立面 4 / IE-01 立面 2）：W800 × D600（与建商下柜、台面前缘切齐），靠东墙
+    {
+      // 电器柜「三格到顶」款（IE-03 立面 4 / IE-01 立面 2）：W800 × D600（与建商下柜、台面前缘切齐），靠东墙
       // 0–855 下柜为扫地机器人柜，门开在北侧（局部 -x，面客厅走道），门片下缘离地 120 让机器人进出；台面 875 白石英
       // 875–1376 家电格（BALMUDA The Range + Baristina 并排，Range 上方留 ≥150 散热）、1396–1698 收纳格（杯子 / 咖啡豆），1698–2750 吊柜，2750–2980 封板
       // 面厨房（西）亮面白，北侧面客厅用白木纹
@@ -2170,7 +2190,8 @@ function buildFurniture(f){
       g.add(box(w, H - ut, d, gm, 0, ut, bz + d/2));
       break;
     }
-    case 'kbar': case 'kbarA': case 'kbarB': {
+    case 'kbar': {
+      // 样式 board：none 无桌板 / west（A 版）/ south（B 版）；open 只在有桌板时可切换
       // A 版：西段最上层改 K&B 隐藏式辅助桌面 ATI23980（最小柜深 400、拉出 370、30 kg），往西拉出延长吧台；抽头 100 高、外贴同款木格栅
       // B 版：西段最上层改 ATI25480（最小柜深 550、拉出 500、40 kg），往南（厨房侧）拉出当备餐台；抽头亮白 + 铝条
       // 桌板 18 mm、在石英台面下方，拉出后比吧台面低约 3–4 cm；滑轨铝合金香槟金；样式 open：收起（抽头与柜面齐平）/ 拉出（3D 点一下切换）
@@ -2181,7 +2202,7 @@ function buildFurniture(f){
       g.add(box(w - .04, lo - .1, cd - .02, gm, 0, .1, cz + (cd - .02)/2));
       // 面客厅：北背板与西侧板为木格栅（同木色衬板 + 3 cm 木条、间距 6 cm）
       const sm = cabSlatM(), bk = cabSlatBackM();
-      const pv = f.type === 'kbarA' ? 'A' : f.type === 'kbarB' ? 'B' : '', hh = .1, wl = pv === 'A' ? lo - hh : lo;   // A 版西侧格栅在柜体段让出抽头高度
+      const bdv = optOf(f, 'board'), pv = bdv === 'west' ? 'A' : bdv === 'south' ? 'B' : '', hh = .1, wl = pv === 'A' ? lo - hh : lo;   // A 版西侧格栅在柜体段让出抽头高度
       g.add(box(w, lo, .018, bk, 0, 0, cz - .009), box(.018, lo, cz - bz, bk, -w/2 + .009, 0, bz + (cz - bz)/2), box(.018, wl, cd, bk, -w/2 + .009, 0, cz + cd/2), box(.02, lo, cd, gm, w/2 - .01, 0, cz + cd/2));
       for (let x = -w/2 + .05; x < w/2 - .02; x += .06) g.add(box(.03, lo, .02, sm, x, 0, cz - .028));
       for (let z = bz + .03; z < bz + d - .015; z += .06) g.add(box(.02, z > cz ? wl : lo, .03, sm, -w/2 - .01, 0, z));
@@ -2854,9 +2875,9 @@ function buildFurniture(f){
       const lens = cyl(.032, .036, .03, mat('#141516', {roughness:.15, metalness:.4}), .07, sy + .075, bz + .29, 24); lens.rotation.x = Math.PI/2; g.add(lens);
       break;
     }
-    case 'entrycab': case 'entrycab2': {
+    case 'entrycab': {
       // 玄关柜（IE-01 立面 1）：W1110 × D400 到顶，底部离地 150 悬空（放日常鞋）
-      // 版本 B（entrycab2）：左段改为不镂空的到顶柜体，150–2523 双开白木纹门片（按压开启）；中空层只在右段
+      // 样式 layout b（全柜体）：左段改为不镂空的到顶柜体，150–2523 双开白木纹门片（按压开启）；中空层只在右段
       // 左段 670：开放挂衣区——150–370 矮柜 + 穿鞋椅面，以上为竖向木格栅背板 + 挂钩
       // 右段 440：下门 150–795、抽屉 815–995、600 开放格放对讲机、上门 1595–2523（木格栅门片）；顶部 2523–2980 封板
       const cm = cabDoorM(), tm = cabTopM(), H = 2.98, fb = .15, top = 2.523, lw = Math.min(.67, w*.6), rw = w - lw, x0 = -w/2, xr = x0 + lw, fz = bz + d - .02;
@@ -2864,8 +2885,8 @@ function buildFurniture(f){
       g.add(box(w, H - top, d - .02, cm, 0, top, bz + (d - .02)/2));                                                   // 顶部封板
       g.add(box(.018, top - fb, d - .02, cm, x0 + .009, fb, bz + (d - .02)/2));                                        // 左侧板
       // 中隔板与右侧板都在开放格处（995–1595）断开，形成贯通的中空层；右段上柜需锁固于墙面
-      (f.type === 'entrycab2' ? [w/2 - .009] : [xr, w/2 - .009]).forEach(x => [[fb, .995], [1.595, top]].forEach(([a, b]) => g.add(box(.018, b - a, d - .02, cm, x, a, bz + (d - .02)/2))));
-      if (f.type === 'entrycab2') g.add(box(.018, top - fb, d - .02, cm, xr, fb, bz + (d - .02)/2));                   // B 版中隔板到顶
+      (optOf(f, 'layout') === 'b' ? [w/2 - .009] : [xr, w/2 - .009]).forEach(x => [[fb, .995], [1.595, top]].forEach(([a, b]) => g.add(box(.018, b - a, d - .02, cm, x, a, bz + (d - .02)/2))));
+      if (optOf(f, 'layout') === 'b') g.add(box(.018, top - fb, d - .02, cm, xr, fb, bz + (d - .02)/2));                   // B 版中隔板到顶
       g.add(box(w - .02, .012, .2, glowMat('#fff7e6', '#ffe9c4', .7), 0, fb - .012, bz + d*.6));                       // 悬空底灯
       // 木格栅门片（同木色衬板 + 竖向木条，与左段格栅同距）；柜体在开放格段只留后半深
       const door = (cx, cw, y0, h) => {
@@ -2878,7 +2899,7 @@ function buildFurniture(f){
       };
       // 左段
       const lx = x0 + lw/2;
-      if (f.type === 'entrycab2'){
+      if (optOf(f, 'layout') === 'b'){
         g.add(box(lw - .018, top - fb, d - .03, cm, lx, fb, bz + (d - .03)/2));
         fronts(g, x0 + .009, fb, lw - .018, top - fb - .005, fz, 2, 1, cm, 'none');
       } else {
@@ -2911,8 +2932,8 @@ function buildFurniture(f){
       fronts(g, xs, kb, w - sw - rb, H - kb, fz, 1, 1, cm, 'edge'); fronts(g, w/2 - rb, kb, rb, 2.528 - kb, fz, 1, 1, cm, 'edge');
       break;
     }
-    case 'wardrobeB2': {
-      // 房间 B 衣柜 B 版 W2895 × D650（滑门三轨约占 10–11 cm，柜内净深约 53 cm 可正面挂衣）：局部 -x 端 = Styler 柜格 700（北墙侧），其余 2195 = 滑门衣柜
+    case 'wardrobeB': if (optOf(f, 'style') === 'slide') {
+      // 房间 B 衣柜「三轨滑门」款 W2895 × D650（滑门三轨约占 10–11 cm，柜内净深约 53 cm 可正面挂衣）：局部 -x 端 = Styler 柜格 700（北墙侧），其余 2195 = 滑门衣柜
       // 全长统一分线：0–2400 下段、2400–顶 顶柜（按压开启，分门与下方对齐）；Styler 柜格也做到 2400（上方散热空间更大）
       // 滑门为内嵌式（轨道藏在柜体内，门面与侧板、立板、顶柜同一平面）：3 片约 750 宽、三轨（每片一条轨道，可叠到同一边）、凹入式把手；与 Styler 柜格以 25 mm 立板交接，门停在立板上
       // 柜内无中间立板，黑色金属衣柜系统（壁挂立柱）分三区：Styler 侧 = 长衣吊杆 + 两层抽篮；中 = 上下双吊杆；矮柜侧（下段被矮柜侧板挡 440）= 层架 + 短吊杆 + 换季收纳箱
@@ -2952,8 +2973,8 @@ function buildFurniture(f){
       slidePos(optOf(f, 'open'), L, W, pw).forEach((x, i) => slide(x, tz[i]));
       break;
     }
-    case 'wardrobeB': {
-      // 柜格按 LG Styler R723SB（600×620×1965）加散热间距：左右各 5 cm、上方 20 cm → 净宽 700、净高 2165；后方 5 cm 由摆放位置预留
+    {
+      // 「5 门到顶」款：柜格按 LG Styler R723SB（600×620×1965）加散热间距：左右各 5 cm、上方 20 cm → 净宽 700、净高 2165；后方 5 cm 由摆放位置预留
       const cm = cabDoorM(), H = 2.98, nw = Math.min(.7, w*.4), nh = Math.min(2.165, H - .3), wd = w - nw, fz = bz + d - .02, x0 = -w/2 + nw;
       g.add(box(wd - .01, .03, d - .06, '#3a3632', x0 + wd/2, 0, bz + (d - .06)/2), box(wd, H - .03, d - .02, cm, x0 + wd/2, .03, bz + (d - .02)/2));
       fronts(g, x0, .03, wd, H - .03, fz, 5, 1, cm, 'none');
