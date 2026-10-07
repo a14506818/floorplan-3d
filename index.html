@@ -359,7 +359,7 @@ const LANGS = ['zh', 'zht', 'en'];             // 简体 / 繁體（台湾用字
 let LANG = (() => { try { const l = localStorage.getItem(LANG_KEY); return LANGS.includes(l) ? l : 'zht'; } catch(e) { return 'zht'; } })();
 // 简 → 繁：先按词替换一字多义的字，再逐字查表（表由 OpenCC s2tw 按本页用到的字生成）
 const S2T_PHRASES = [['布置','佈置'],['布局','佈局'],['台面','檯面'],['复制','複製'],['屏幕','螢幕'],['鼠标','滑鼠'],['坐标','座標']];   // 「坐」单字不转（坐姿），只有「坐标」转台湾用语「座標」
-const S2T = new Map(('与與两兩个個为為书書于於仅僅从從价價会會传傳体體余餘侧側倾傾储儲儿兒关關内內写寫净淨准準击擊则則刚剛删刪制製办辦动動势勢区區单單占佔卧臥卫衛厅廳历歷压壓厨廚双雙发發变變叶葉后後吗嗎听聽启啟哑啞围圍图圖圆圓场場块塊垫墊墙牆处處备備复復头頭妆妝婴嬰实實宽寬对對导導层層屉屜属屬岛島带帶干乾并並库庫应應开開当當径徑态態总總悬懸懒懶户戶护護拟擬择擇挂掛挡擋挤擠损損换換据據摆擺摇搖撑撐数數无無时時显顯暂暫机機杂雜杆桿条條来來松鬆构構柜櫃标標栈棧栏欄样樣梁樑棱稜椭橢横橫橱櫥气氣没沒注註浅淺测測浏瀏游遊滚滾满滿灯燈灵靈点點热熱状狀独獨环環现現电電画畫监監盖蓋盘盤砖磚确確离離积積称稱竖豎筑築签籤类類约約级級线線结結绕繞绘繪给給统統继繼绿綠缀綴编編缝縫缩縮网網联聯脚腳获獲虚虛装裝见見视視览覽触觸计計认認让讓议議记記设設识識译譯该該语語请請读讀调調负負败敗质質贴貼赶趕转轉轮輪软軟轴軸轻輕载載较較辅輔辑輯边邊过過这這进進远遠适適选選邻鄰里裡针針钢鋼钮鈕铰鉸铺鋪销銷锁鎖键鍵镜鏡长長门門闭閉闲閒间間阅閱阳陽阴陰阶階随隨隐隱静靜页頁顶頂项項顺順颜顏飘飄飞飛马馬鸟鳥齐齊龙龍华華纳納篮籃运運笼籠炉爐强強脱脫烟煙锅鍋栅柵矿礦涂塗还還旧舊档檔预預镂鏤轨軌纹紋').match(/../gu).map(p => [...p]));
+const S2T = new Map(('与與两兩个個为為书書于於仅僅从從价價会會传傳体體余餘侧側倾傾储儲儿兒关關内內写寫净淨准準击擊则則刚剛删刪制製办辦动動势勢区區单單占佔卧臥卫衛厅廳历歷压壓厨廚双雙发發变變叶葉后後吗嗎听聽启啟哑啞围圍图圖圆圓场場块塊垫墊墙牆处處备備复復头頭妆妝婴嬰实實宽寬对對导導层層屉屜属屬岛島带帶干乾并並库庫应應开開当當径徑态態总總悬懸懒懶户戶护護拟擬择擇挂掛挡擋挤擠损損换換据據摆擺摇搖撑撐数數无無时時显顯暂暫机機杂雜杆桿条條来來松鬆构構柜櫃标標栈棧栏欄样樣梁樑棱稜椭橢横橫橱櫥气氣没沒注註浅淺测測浏瀏游遊滚滾满滿灯燈灵靈点點热熱状狀独獨环環现現电電画畫监監盖蓋盘盤砖磚确確离離积積称稱竖豎筑築签籤类類约約级級线線结結绕繞绘繪给給统統继繼绿綠缀綴编編缝縫缩縮网網联聯脚腳获獲虚虛装裝见見视視览覽触觸计計认認让讓议議记記设設识識译譯该該语語请請读讀调調负負败敗质質贴貼赶趕转轉轮輪软軟轴軸轻輕载載较較辅輔辑輯边邊过過这這进進远遠适適选選邻鄰里裡针針钢鋼钮鈕铰鉸铺鋪销銷锁鎖键鍵镜鏡长長门門闭閉闲閒间間阅閱阳陽阴陰阶階随隨隐隱静靜页頁顶頂项項顺順颜顏飘飄飞飛马馬鸟鳥齐齊龙龍华華纳納篮籃运運笼籠炉爐强強脱脫烟煙锅鍋栅柵矿礦涂塗还還旧舊档檔预預镂鏤轨軌纹紋锈鏽').match(/../gu).map(p => [...p]));
 const s2t = s => S2T_PHRASES.reduce((a, [f, t]) => a.replaceAll(f, t), s).replace(/[\u3400-\u9fff]/g, c => S2T.get(c) || c);
 const tr = (zh, en) => LANG === 'en' ? en : LANG === 'zht' ? s2t(zh) : zh;
 // 内置的房间 / 材料 / 家具名称存的是中文；英文界面下显示译名，用户自己改过的名称原样显示
@@ -522,11 +522,16 @@ const VARIANTS = {
   kbar: {
     board: {label:['抽拉桌板', 'Pull-out board'], values:{none:['无', 'None'], west:['往西延长（A）', 'West extension (A)'], south:['往南备餐（B）', 'South prep (B)']}, def:'none'},
     open:  {label:['桌板', 'Board'], values:{closed:['收起', 'Stowed'], open:['拉出', 'Pulled out']}, def:'closed', click:true, when:f => optOf(f, 'board') !== 'none'},
+    // 桌板下方：两个一般抽屉 / 上抽改电器抽放电锅（柜内插座，拉出来煮、蒸气往上散，用完推回去）+ 下抽照旧
+    lower: {label:['下柜', 'Lower drawers'], values:{drawers:['两抽', '2 drawers'], cooker:['电器抽（电锅）+ 一抽', 'Rice-cooker drawer + 1 drawer']}, def:'drawers', when:f => optOf(f, 'board') !== 'none'},
+    cook:  {label:['电器抽', 'Appliance drawer'], values:{closed:['收起', 'Closed'], open:['拉出（煮饭）', 'Pulled out (cooking)']}, def:'closed', click:true, when:f => optOf(f, 'board') !== 'none' && optOf(f, 'lower') === 'cooker'},
   },
   entrycab: {layout:{label:['款式', 'Layout'], values:{a:['A 镂空挂衣', 'A · Open hanging'], b:['B 全柜体', 'B · Full storage']}, def:'a'}},
   ktower: {style:{label:['款式', 'Layout'], values:{tall:['三格到顶', 'Tall, 3 tiers'], open:['开放 + 格栅', 'Open + slats']}, def:'tall'}},
   deskA: {height:{label:['桌面高度', 'Desk height'], values:{sit:['坐姿 65 cm', 'Sitting 65 cm'], stand:['站姿 107 cm', 'Standing 107 cm']}, def:'sit', click:true}},
   deskB: {height:{label:['桌面高度', 'Desk height'], values:{sit:['坐姿 65 cm', 'Sitting 65 cm'], stand:['站姿 107 cm', 'Standing 107 cm']}, def:'sit', click:true}},
+  // 不锈钢架 20 cm：整台（含底座迷你洗衣机）垫高，方便放洗衣篮、拖地；点一下切换
+  washcombo: {stand:{label:['底座', 'Base'], values:{none:['直接落地', 'On the floor'], steel:['不锈钢架 20 cm', 'Steel stand 20 cm']}, def:'none', click:true}},
   wardrobeC:  {open:{label:['折门', 'Bi-fold doors'], values:{closed:['关闭', 'Closed'], open:['打开', 'Open']}, def:'closed', click:true}},
   // 滑门的左右以站在房间 B 面对衣柜为准（Styler 在左手边 = 局部 -x）；3 片三轨，可三片叠到同一边（空出约 2/3）
   wardrobeB: {
@@ -583,10 +588,13 @@ function setOpt(f, k, v){
 }
 // 3D 点一下：把可点选项切到下一个值（一次 mutate = 可撤销、会存档）；该家具没有可点选项时回传 false
 function clickToggle(id){
-  const f = getF(id), vs = f && VARIANTS[f.type], k = vs && Object.keys(vs).find(k => vs[k].click && optOn(f, k));
-  if (!k) return false;
-  const vals = Object.keys(vs[k].values), next = vals[(vals.indexOf(optOf(f, k)) + 1) % vals.length];
-  mutate(() => { const g = getF(id); if (g) setOpt(g, k, next); });
+  const f = getF(id), vs = f && VARIANTS[f.type], ks = vs ? Object.keys(vs).filter(k => vs[k].click && optOn(f, k)) : [];
+  if (!ks.length) return false;
+  // 多个可点选项时轮流只打开一个、其余回到默认（例：吧台桌板与电器抽都往南拉，不同时拉出）：全关 → 第 1 个 → 第 2 个 → 全关
+  const seq = [[]];
+  ks.forEach(k => Object.keys(vs[k].values).forEach(v => { if (v !== vs[k].def) seq.push([k, v]); }));
+  const cur = seq.findIndex(([k, v]) => ks.every(j => optOf(f, j) === (j === k ? v : vs[j].def))), [nk, nv] = seq[(cur + 1) % seq.length];
+  mutate(() => { const g = getF(id); if (g) ks.forEach(j => setOpt(g, j, j === nk ? nv : vs[j].def)); });
   return true;
 }
 
@@ -605,8 +613,8 @@ function defaultFurniture(){ return [
   F('paintwall','电视墙矿物涂料（含卫浴隐藏门）',5218,1465,2930,4,90,'#dcd8d1'), F('tvstand2','电视柜（落地 · 可抽出 · 木格栅）',5005,2015,1800,430,90,'#f3f1ec'), F('homepod','HomePod（第 2 代）',5080,1210,142,142,90,'#2c2d30',400),
   F('homepod','HomePod（第 2 代）',5090,2820,142,142,90,'#2c2d30',400), F('tv','55 寸电视',5160,2010,1230,80,90,'#1d1d1f'),
   // 开放式厨房 / 吧台
-  F('ktower','电器柜',4920,4616,800,600,90,'#f7f7f4',0,{style:'open'}), F('kbar','转角吧台（含洗碗机）',4055,4591,1130,850,0,'#f7f7f4',0,{board:'south'}), F('balmuda','BALMUDA The Range 微波烤箱',4850,4460,456,392,90,'#f1f0ec',875),
-  F('baristina','Philips Baristina BeanSwap 咖啡机',4880,4860,220,450,90,'#efece4',875), F('ricecooker','大同 10 人份电锅',3790,4800,350,295,0,'#d4bfa5',875), F('barstool','吧椅',3760,3950,420,420,0,'#6b5d4c'),
+  F('ktower','电器柜',4920,4616,800,600,90,'#f7f7f4',0,{style:'open'}), F('kbar','转角吧台（含洗碗机）',4055,4591,1130,850,0,'#f7f7f4',0,{board:'south', lower:'cooker'}), F('balmuda','BALMUDA The Range 微波烤箱',4850,4460,456,392,90,'#f1f0ec',875),
+  F('baristina','Philips Baristina BeanSwap 咖啡机',4880,4860,220,450,90,'#efece4',875), F('barstool','吧椅',3760,3950,420,420,0,'#6b5d4c'),
   F('barstool','吧椅',4330,3950,420,420,0,'#6b5d4c'), F('kitchen','一字型厨具（水槽 · 电磁炉 · 抽油烟机 · 烘碗机）',4920,6038,2044,600,90,'#f7f7f4'), F('hfridge','日立 313L 冰箱',2870,6680,595,650,180,'#f4f3ef'),
   F('floorwasher','添可 S9 洗地机',3400,6830,290,330,180,'#bfc3c6'),
   // 房间 C
@@ -817,7 +825,8 @@ function furnSVG(t,w,d,c,op){
     }
     case 'ksink': return rc(x,y,w,d,c,'rx="20"') + rc(x+w*.06,y+d*.18,w*.42,d*.66,'#fff','rx="50"') + rc(x+w*.52,y+d*.18,w*.42,d*.66,'#fff','rx="50"') + `<circle cx="0" cy="${y+d*.09}" r="22" fill="#999"/>`;
     case 'washcombo': return rc(x,y,w,d,'#c9ccd0','rx="30"') + rc(x,y,w,d*.14,'#9ea2a7') + rc(x+40,y+d-90,w-80,60,'#7d8186')
-      + `<circle cy="${-d*.02}" r="${m*.33}" fill="#fff" ${ST}/><circle cy="${-d*.02}" r="${m*.23}" fill="#3a3f45" ${ST}/>`;
+      + `<circle cy="${-d*.02}" r="${m*.33}" fill="#fff" ${ST}/><circle cy="${-d*.02}" r="${m*.23}" fill="#3a3f45" ${ST}/>`
+      + (ov('stand') === 'steel' ? [[x,y],[x+w-40,y],[x,y+d-40],[x+w-40,y+d-40]].map(([px,py]) => rc(px,py,40,40,'#b8bcc0')).join('') : '');
     case 'fridge': return rc(x,y,w,d,c,'rx="30"') + ln(x,y+d*.14,x+w,y+d*.14) + ln(0,y+d*.14,0,y+d) + rc(-70,y+d*.5,40,d*.25,'#aab') + rc(30,y+d*.5,40,d*.25,'#aab');
     case 'toilet': return rc(x+w*.04,y,w*.92,d*.27,c,'rx="30"') + ec(0,y+d*.27+d*.36,w*.47,d*.36,c) + ec(0,y+d*.27+d*.4,w*.3,d*.24,'#eef4f7');
     case 'vanity': return rc(x,y,w,d,c,'rx="20"') + ec(0,y+d*.57,Math.min(w*.32,260),d*.28,'#fff') + `<circle cx="0" cy="${y+d*.17}" r="26" fill="#999"/>`;
@@ -867,7 +876,8 @@ function furnSVG(t,w,d,c,op){
     return rc(x,y,w,d,c) + ln(x,y,x+w,y+d,DASH) + ln(x+w,y,x,y+d,DASH) + rc(x-18,y,18,d,TW()) + `<text x="${x+40}" y="${y+d-60}" font-size="90" fill="#7d7366">⇠ 扫地机</text>`;
     case 'kbar': {
       const cd = Math.min(580, d), dw = Math.min(600, w*.55), sw = w - 60 - dw, bd = ov('board');
-      const op = ov('open') === 'open', ext = !op ? '' : bd === 'west' ? rc(x-370,y+d-cd+20,370,cd-40,'#efeee9','stroke-dasharray="6 4" fill-opacity=".6"') : bd === 'south' ? rc(x+40,y+d,sw-40,500,'#efeee9','stroke-dasharray="6 4" fill-opacity=".6"') : '';   // 抽拉桌板拉出时才画
+      const ck = bd !== 'none' && ov('lower') === 'cooker' && ov('cook') === 'open';
+      const op = ov('open') === 'open', ext = (ck ? rc(x+40,y+d,sw-40,500,'#e3e5e6','stroke-dasharray="6 4"') + `<circle cx="${x+20+sw/2}" cy="${y+d+250}" r="140" fill="#d4bfa5" ${ST}/>` : '') + (!op ? '' : bd === 'west' ? rc(x-370,y+d-cd+20,370,cd-40,'#efeee9','stroke-dasharray="6 4" fill-opacity=".6"') : bd === 'south' ? rc(x+40,y+d,sw-40,500,'#efeee9','stroke-dasharray="6 4" fill-opacity=".6"') : '');   // 抽拉桌板 / 电器抽拉出时才画
       return ext + rc(x,y,w,d,'#efeee9') + rc(x,y+d-cd,w,cd,c) + rc(x+w-dw-20,y+d-cd,dw,cd,'#c9ced2') + ln(x,y+d-cd,x+w,y+d-cd,DASH) + rc(x,y,20,d,TW());
     }
     case 'sofa2': {
@@ -2264,8 +2274,23 @@ function buildFurniture(f){
       g.add(box(.09, .012, .002, mat('#101214', {emissive:'#7fd0ff', emissiveIntensity:.6}), dx + .2, .8, fz + .001));
       const sw = w - .04 - dw - .02, sx0 = -w/2 + .02, sxc = sx0 + sw/2, bt = .018, by = lo - .003 - bt, gold = mat('#c9b48a', {metalness:.75, roughness:.3}), dark = '#1d1c1b';
       if (!pv){ fronts(g, sx0, .1, sw, lo - .1, fz - .02, 1, 3, gm, 'alu'); break; }
-      fronts(g, sx0, .1, sw, lo - .1 - hh, fz - .02, 1, 2, gm, 'alu');                                                     // 下方两抽
       const open = optOf(f, 'open') === 'open';
+      if (optOf(f, 'lower') !== 'cooker') fronts(g, sx0, .1, sw, lo - .1 - hh, fz - .02, 1, 2, gm, 'alu');                 // 下方两抽
+      else {
+        // 上抽 = 电器抽（面板 36、内高约 31，电锅 26.5 放得下）：重型全展开滑轨、不锈钢底盘、柜内插座；拉出 50 cm 煮饭，电锅顶约 70 cm、上方开放
+        // 下抽照旧（面板约 29.5）；煮的时候才需要开盖空间，那时已经拉到柜外，所以柜内只要放得下电锅本体
+        const e = optOf(f, 'cook') === 'open' ? .5 : 0, bw = sw - .04, uh = .36, lh = lo - .1 - hh - uh, y0 = .1 + lh, zb = fz - .02 + e, zc = zb - .25, ty = y0 + .03;
+        fronts(g, sx0, .1, sw, lh, fz - .02, 1, 1, gm, 'alu');                                                           // 下抽
+        fronts(g, sx0, y0, sw, uh, zb, 1, 1, gm, 'alu');                                                                 // 电器抽
+        if (e){
+          g.add(box(bw, uh - .02, .005, dark, sxc, y0 + .01, fz - .022));                                                  // 拉出后的开口
+          g.add(box(bw - .06, .012, .48, ss, sxc, ty, zc), box(bw - .06, .14, .012, gm, sxc, ty, zc - .24));               // 不锈钢底盘 + 背板
+          [-1, 1].forEach(k => g.add(box(.012, .14, .48, gm, sxc + k*(bw/2 - .036), ty, zc), box(.012, .04, e + .3, ss, sxc + k*(bw/2 - .022), ty + .05, zb - (e + .3)/2)));   // 侧板 + 滑轨
+          const rk = buildFurniture({type:'ricecooker', w:350, d:295, cx:0, cy:0, rot:0, color:'#d4bfa5'});
+          rk.position.set(sxc, ty + .012, zc + .02); rk.rotation.y = 0; delete rk.userData.fid; g.add(rk);
+          g.add(tube([[sxc + .05, ty + .03, zc - .12], [sxc + .08, ty + .02, zc - .2], [sxc + .12, ty + .07, zc - .3], [sxc + .12, ty + .15, fz - .5]], .004, mat('#1d1c1b', {roughness:.6})));   // 电源线接回柜内插座
+        }
+      }
       if (pv === 'A'){
         // 往西：抽头外贴同款木格栅、木条与下方格栅同一条网格线；e = 拉出量，0 = 收起（抽头衬板 / 格栅与侧面齐平）
         const e = open ? .37 : 0, zc = cz + cd/2, xo = -w/2 - e;                                                         // xo = 抽头衬板外皮
@@ -2806,6 +2831,7 @@ function buildFurniture(f){
       break;
     }
     case 'washcombo': {
+      const n0 = g.children.length, sb = optOf(f, 'stand') === 'steel' ? .2 : 0;
       const bm = mat(c, {roughness:.3, metalness:.35}), dk = mat(darker(c, .7), {roughness:.5}), ph = .36, mh = .99, pd = Math.min(.77, d), fz = d/2;
       // 底座迷你洗衣机：比主机浅，靠墙对齐，前缘内缩
       g.add(rbox(w, ph - .01, pd, bm, 0, 0, -d/2 + pd/2, .02), box(w - .06, .02, .004, dk, 0, ph - .06, -d/2 + pd + .003));
@@ -2821,6 +2847,15 @@ function buildFurniture(f){
       const Rs = R0*1.42, cap = new THREE.Mesh(new THREE.SphereGeometry(Rs, 32, 12, 0, Math.PI*2, 0, .78), mat('#20262c', {roughness:.04, metalness:.3, transparent:true, opacity:.82}));
       cap.rotation.x = Math.PI/2; cap.position.set(0, cy0, fz + .01 - Rs*Math.cos(.78)); g.add(cap);
       g.add(box(w - .08, .004, .003, '#55595e', 0, ph + .06, fz + .002));
+      if (sb){
+        // 不锈钢方管架：上框承重、四角立柱 + 可调脚、下框加强，中间净空约 15 cm
+        g.children.slice(n0).forEach(o => o.position.y += sb);
+        const st = mat('#c9cdd1', {metalness:.9, roughness:.28}), ft = mat('#2a2b2d', {roughness:.6}), t = .03, sw = w + .02, sd = d + .01, zc = -.005;
+        [[0, sd/2 - t/2], [0, -sd/2 + t/2]].forEach(([px, pz]) => g.add(box(sw, t, t, st, px, sb - t, zc + pz), box(sw, t*.7, t, st, px, .035, zc + pz)));
+        [-1, 1].forEach(k => g.add(box(t, t, sd, st, k*(sw/2 - t/2), sb - t, zc), box(t, t*.7, sd, st, k*(sw/2 - t/2), .035, zc)));
+        g.add(box(sw - 2*t, .004, sd - 2*t, st, 0, sb - .004, zc));
+        [-1, 1].forEach(kx => [-1, 1].forEach(kz => g.add(box(t, sb - .02, t, st, kx*(sw/2 - t/2), .02, zc + kz*(sd/2 - t/2)), cyl(.022, .025, .02, ft, kx*(sw/2 - t/2), 0, zc + kz*(sd/2 - t/2), 16))));
+      }
       break;
     }
     case 'washer': case 'dryer': {

@@ -30,7 +30,7 @@ python3 -m http.server 8000
 - 自訂家具：2D 在 `furnSVG()`、3D 在 `buildFurniture()`
 - 材質：`CAB_STYLE`（由全屋配色 `THEME` / `state.theme` 在 3D 建模前寫入；2D 木色用 `TW()`）、`plasterMat()`、`mirrorMesh()`；個別家具顏色色票在 `SWATCHES`；門片把手 `fronts(…, 'bar' | 'edge' | 'alu' | 'aluB')`
 - 隱藏門：`DOORS` 的 `slat`（木格柵）/ `paint`（塗料）
-- **樣式 / 狀態**：在 `VARIANTS` 宣告某種家具有哪些選項（`label`、`values`、`def`；`click:true` ＝ 3D 點一下輪替；`when` ＝ 只在條件成立時適用），選的值存在 `f.opts`；繪圖時用 `optOf(f, key)`（3D）/ `ov(key)`（2D `furnSVG`）讀取。屬性面板會自動出現「樣式」按鈕。同一件家具的不同版本用「款式」選項，不要另開新類型；舊類型在 `TYPE_MERGE` 轉換
+- **樣式 / 狀態**：在 `VARIANTS` 宣告某種家具有哪些選項（`label`、`values`、`def`；`click:true` ＝ 3D 點一下輪替，有多個時輪流只開一個；`when` ＝ 只在條件成立時適用），選的值存在 `f.opts`；繪圖時用 `optOf(f, key)`（3D）/ `ov(key)`（2D `furnSVG`）讀取。屬性面板會自動出現「樣式」按鈕。同一件家具的不同版本用「款式」選項，不要另開新類型；舊類型在 `TYPE_MERGE` 轉換
 
 **存檔**：擺設存在各自瀏覽器的 localStorage，不會同步。改了 `defaultFurniture()` 後舊存檔自動作廢，可從「文件 → 還原舊存檔」找回。要把頁面上的擺法設成預設：文件 → 匯出方案 JSON，再轉寫進 `defaultFurniture()`。
 
