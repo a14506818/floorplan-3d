@@ -359,7 +359,7 @@ const LANGS = ['zh', 'zht', 'en'];             // 简体 / 繁體（台湾用字
 let LANG = (() => { try { const l = localStorage.getItem(LANG_KEY); return LANGS.includes(l) ? l : 'zht'; } catch(e) { return 'zht'; } })();
 // 简 → 繁：先按词替换一字多义的字，再逐字查表（表由 OpenCC s2tw 按本页用到的字生成）
 const S2T_PHRASES = [['布置','佈置'],['布局','佈局'],['台面','檯面'],['复制','複製'],['屏幕','螢幕'],['鼠标','滑鼠'],['坐标','座標']];   // 「坐」单字不转（坐姿），只有「坐标」转台湾用语「座標」
-const S2T = new Map(('与與两兩个個为為书書于於仅僅从從价價会會传傳体體余餘侧側倾傾储儲儿兒关關内內写寫净淨准準击擊则則刚剛删刪制製办辦动動势勢区區单單占佔卧臥卫衛厅廳历歷压壓厨廚双雙发發变變叶葉后後吗嗎听聽启啟哑啞围圍图圖圆圓场場块塊垫墊墙牆处處备備复復头頭妆妝婴嬰实實宽寬对對导導层層屉屜属屬岛島带帶干乾并並库庫应應开開当當径徑态態总總悬懸懒懶户戶护護拟擬择擇挂掛挡擋挤擠损損换換据據摆擺摇搖撑撐数數无無时時显顯暂暫机機杂雜杆桿条條来來松鬆构構柜櫃标標栈棧栏欄样樣梁樑棱稜椭橢横橫橱櫥气氣没沒注註浅淺测測浏瀏游遊滚滾满滿灯燈灵靈点點热熱状狀独獨环環现現电電画畫监監盖蓋盘盤砖磚确確离離积積称稱竖豎筑築签籤类類约約级級线線结結绕繞绘繪给給统統继繼绿綠缀綴编編缝縫缩縮网網联聯脚腳获獲虚虛装裝见見视視览覽触觸计計认認让讓议議记記设設识識译譯该該语語请請读讀调調负負败敗质質贴貼赶趕转轉轮輪软軟轴軸轻輕载載较較辅輔辑輯边邊过過这這进進远遠适適选選邻鄰里裡针針钢鋼钮鈕铰鉸铺鋪销銷锁鎖键鍵镜鏡长長门門闭閉闲閒间間阅閱阳陽阴陰阶階随隨隐隱静靜页頁顶頂项項顺順颜顏飘飄飞飛马馬鸟鳥齐齊龙龍华華纳納篮籃运運笼籠炉爐强強脱脫烟煙锅鍋栅柵矿礦涂塗还還旧舊档檔预預镂鏤轨軌纹紋锈鏽').match(/../gu).map(p => [...p]));
+const S2T = new Map(('与與两兩个個为為书書于於仅僅从從价價会會传傳体體余餘侧側倾傾储儲儿兒关關内內写寫净淨准準击擊则則刚剛删刪制製办辦动動势勢区區单單占佔卧臥卫衛厅廳历歷压壓厨廚双雙发發变變叶葉后後吗嗎听聽启啟哑啞围圍图圖圆圓场場块塊垫墊墙牆处處备備复復头頭妆妝婴嬰实實宽寬对對导導层層屉屜属屬岛島带帶干乾并並库庫应應开開当當径徑态態总總悬懸懒懶户戶护護拟擬择擇挂掛挡擋挤擠损損换換据據摆擺摇搖撑撐数數无無时時显顯暂暫机機杂雜杆桿条條来來松鬆构構柜櫃标標栈棧栏欄样樣梁樑棱稜椭橢横橫橱櫥气氣没沒注註浅淺测測浏瀏游遊滚滾满滿灯燈灵靈点點热熱状狀独獨环環现現电電画畫监監盖蓋盘盤砖磚确確离離积積称稱竖豎筑築签籤类類约約级級线線结結绕繞绘繪给給统統继繼绿綠缀綴编編缝縫缩縮网網联聯脚腳获獲虚虛装裝见見视視览覽触觸计計认認让讓议議记記设設识識译譯该該语語请請读讀调調负負败敗质質贴貼赶趕转轉轮輪软軟轴軸轻輕载載较較辅輔辑輯边邊过過这這进進远遠适適选選邻鄰里裡针針钢鋼钮鈕铰鉸铺鋪销銷锁鎖键鍵镜鏡长長门門闭閉闲閒间間阅閱阳陽阴陰阶階随隨隐隱静靜页頁顶頂项項顺順颜顏飘飄飞飛马馬鸟鳥齐齊龙龍华華纳納篮籃运運笼籠炉爐强強脱脫烟煙锅鍋栅柵矿礦涂塗还還旧舊档檔预預镂鏤轨軌纹紋锈鏽错錯').match(/../gu).map(p => [...p]));
 const s2t = s => S2T_PHRASES.reduce((a, [f, t]) => a.replaceAll(f, t), s).replace(/[\u3400-\u9fff]/g, c => S2T.get(c) || c);
 const tr = (zh, en) => LANG === 'en' ? en : LANG === 'zht' ? s2t(zh) : zh;
 // 内置的房间 / 材料 / 家具名称存的是中文；英文界面下显示译名，用户自己改过的名称原样显示
@@ -449,14 +449,15 @@ const DOORS = [
 ];
 // 推拉门
 const SLIDES = [
-  {rect:[2410,400,2520,1500],v:true},     // 房间 A 玻璃拉门
+  // 房间 A 玻璃拉门：三片连动（三轨），开门时三片叠起来收进北侧衣柜旁的门槽（y 0–400、宽 130，衣柜东端让出）；白色铝框
+  {rect:[2410,400,2520,1500],v:true,n:3},
 ];
 const R = (x0,y0,x1,y1) => [[x0,y0],[x1,y0],[x1,y1],[x0,y1]];
 // extra:true = 不计入套内面积（卫浴、阳台）
 const ROOMS = [
   {id:'roomA', name:'房间 A', poly:R(0,0,2410,2460), mat:'wood', at:[1205,1300]},
   {id:'roomB', name:'房间 B', poly:R(0,2560,2410,5455), mat:'wood', at:[1100,4300]},
-  {id:'living', name:'客厅', poly:R(2520,0,5220,7060), mat:'tile800', at:[3870,3300]},
+  {id:'living', name:'客厅', poly:R(2520,0,5220,7060), mat:'wood', at:[3870,3300]},
   {id:'roomC', name:'房间 C', poly:R(5330,3132,7630,7060), mat:'wood', at:[6480,4300]},
   {id:'bath1', name:'上卫浴', poly:R(5330,0,7630,1504), mat:'antislip', at:[6200,500], extra:true},
   {id:'bath2', name:'下卫浴', poly:R(5330,1619,7630,3022), mat:'antislip', at:[6200,2650], extra:true},
@@ -602,7 +603,7 @@ function clickToggle(id){
   return true;
 }
 
-// 预设家具 = 2026-10-04 使用者在页面上摆好的状态（文件 → 导出方案 JSON）
+// 预设家具 = 2026-10-09 使用者在页面上摆好的状态（文件 → 导出方案 JSON）
 function defaultFurniture(){ return [
   // 房间 A（运动 / 工作室）
   F('wardrobeA','到顶衣柜（推拉 + 对开）',1260,200,2520,400,0,'#f3f1ec'), F('roomAwall','墙面：格栅 + 淡茶镜',23,1430,2061,45,270,'#d9c9b2'), F('wallbar','肋木架（wall bar）',120,2080,700,150,270,'#d6b78c'),
@@ -623,9 +624,9 @@ function defaultFurniture(){ return [
   F('floorwasher','添可 S9 洗地机',3400,6830,290,330,180,'#bfc3c6'),
   // 房间 C
   F('bedC','木作床组（2 单人床 + 床头柜 + 吊柜）',6480,6003,2115,2300,90,'#c9d6df'), F('wardrobeC','衣柜（折门 + 金属衣柜系统）',7330,4040,1813,600,90,'#f3f1ec'), F('hangrack','NITORI A 型吊挂架',5550,4570,850,400,90,'#d2a874'),
-  F('acwall','挂机空调',6290,3257,900,250,0,'#f6f7f8'),
+  F('acwall','挂机空调',6290,3257,900,250,0,'#f6f7f8'), F('tota','Joseph Joseph Tota 90L 分类洗衣篮',6370,3370,550,390,0,'#e2dccf'),
   // 阳台
-  F('washcombo','LG WashCombo 洗脱烘',730,6110,700,840,270,'#2b2c2f'), F('gasheater','林内 16L 强排热水器',450,7000,330,200,270,'#f4f5f3'),
+  F('washcombo','LG WashCombo 洗脱烘',730,6110,700,840,270,'#2b2c2f',0,{stand:'steel'}), F('gasheater','林内 16L 强排热水器',450,7000,330,200,270,'#f4f5f3'),
   // 上卫浴
   F('vanity','浴室柜',5750,1254,800,500,180,'#eef1f3'), F('toilet','马桶',6600,1154,400,700,180,'#ffffff'), F('shower','淋浴区',7265,645,730,1290,180,'#e4edf2'),
   // 下卫浴
@@ -858,8 +859,8 @@ function furnSVG(t,w,d,c,op){
       return s + ln(x,0,x+w,0,'stroke-width="3"') + `<circle cx="${x+20}" cy="0" r="16" fill="${c}" ${ST}/><circle cx="${x+w-20}" cy="0" r="16" fill="${c}" ${ST}/>`;
     }
     case 'bedC': {
-      const hd = 380, mw = Math.min(910, w/2), ml = Math.min(1880, d - hd - 30);
-      let s = rc(x,y,w,d,'#e9dcc6') + rc(x,y,w,hd,'#f3f1ec') + rc(x+20,y+20,w-40,hd-40,'none',DASH);
+      const hd = 200, ud = 360, mw = Math.min(910, w/2), ml = Math.min(1880, d - hd - 30), L = d - hd;   // 床头柜深 200、上方层板 / 吊柜深 360（虚线）；床台做到底，床垫尾端外露台面
+      let s = rc(x,y,w,hd+L,'#e9dcc6') + rc(x,y,w,hd,'#f3f1ec') + rc(x+20,y+20,w-40,ud-40,'none',DASH);
       [-1, 1].forEach(k => { const mx = k < 0 ? -mw : 0; s += rc(mx,y+hd+10,mw,ml,'#fbf8f2','rx="40"') + rc(mx,y+hd+10,mw,ml*.6,c,'rx="40" fill-opacity=".55" transform="translate(0 '+ml*.4+')"') + rc(mx+mw*.15,y+hd+50,mw*.7,320,'#fff','rx="70"'); });
       return s;
     }
@@ -903,9 +904,9 @@ function furnSVG(t,w,d,c,op){
       return s + rc(x+lw+20,y+d-30,w-lw-40,30,TW()) + ln(x+lw,y,x+w,y+d,DASH);
     }
     case 'wardrobeA': {
-      const sw = Math.min(1800, w*.72), x1 = x + sw;
-      return rc(x,y,w,d,c) + [1,2].map(i => ln(x+sw*i/3,y+d-60,x+sw*i/3,y+d)).join('') + ln(x,y+d-30,x1,y+d-30,DASH)
-        + ln(x1,y,x1,y+d) + ln(x1+(w-sw)/2,y+d-60,x1+(w-sw)/2,y+d) + ln(x1,y,x+w,y+d,DASH) + ln(x+w,y,x1,y+d,DASH);
+      const sw = Math.min(1800, w*.72), x1 = x + sw, pk = w > 2400 ? 130 : 0, xe = x + w - pk, rb = Math.min(340, (w - sw)/2);   // pk = 东端门槽（房间 A 拉门收这里）
+      return rc(x,y,w-pk,d,c) + [1,2].map(i => ln(x+sw*i/3,y+d-60,x+sw*i/3,y+d)).join('') + ln(x,y+d-30,x1,y+d-30,DASH)
+        + ln(x1,y,x1,y+d) + ln(x+w-rb,y+d-60,x+w-rb,y+d) + ln(x1,y,xe,y+d,DASH) + ln(xe,y,x1,y+d,DASH);
     }
     case 'wardrobeB': if (ov('style') === 'slide') {
       const nw = Math.min(700, w*.3), W = w - nw - 43, pw = (W + 60)/3, L = x + nw + 12;
@@ -1012,7 +1013,8 @@ function renderOpenings(){
     s += `<rect x="${dir < 0 ? x-45 : x}" y="${y0}" width="45" height="${y1-y0}" fill="#d6b78c" stroke="#8d7258" stroke-width="1" vector-effect="non-scaling-stroke"/>`;
     for (let y = y0 + 30; y < y1; y += 60) s += `<line x1="${dir < 0 ? x-45 : x}" y1="${y}" x2="${dir < 0 ? x : x+45}" y2="${y}" stroke="#8d7258" stroke-width=".6" vector-effect="non-scaling-stroke"/>`;
   });
-  SLIDES.forEach(({rect:[x0,y0,x1,y1],v}) => {
+  SLIDES.forEach(({rect:[x0,y0,x1,y1],v,n}) => {
+    if (n === 3){ const L = y1-y0, pw = (L + 80)/3, m = (x0+x1)/2 - 10; [0,1,2].forEach(i => s += `<rect x="${m-50+i*35}" y="${y0-20+i*(pw-30)}" width="30" height="${pw}" fill="#fff" ${DS}/>`); s += `<rect x="${m-52}" y="${y0-400}" width="104" height="400" fill="none" stroke="#9a9184" stroke-dasharray="40 30" stroke-width="1" vector-effect="non-scaling-stroke"/>`; return; }
     if (v){ const L = y1-y0, m = (x0+x1)/2; s += `<rect x="${m-45}" y="${y0}" width="40" height="${L*.55}" fill="#fff" ${DS}/><rect x="${m+5}" y="${y1-L*.55}" width="40" height="${L*.55}" fill="#fff" ${DS}/>`; }
     else { const L = x1-x0, m = (y0+y1)/2; s += `<rect x="${x0}" y="${m-45}" width="${L*.55}" height="40" fill="#fff" ${DS}/><rect x="${x1-L*.55}" y="${m+5}" width="${L*.55}" height="40" fill="#fff" ${DS}/>`; }
   });
@@ -2059,6 +2061,24 @@ function rattanMat(w, h){
 // 黑色洞洞板：25 mm 孔距、约 6 mm 圆孔（alphaTest 透空）；每种板子尺寸一个材质
 let pegTex = null;
 const pegCache = new Map();
+// 长虹玻璃：竖向圆弧纹（canvas 画一条纹的明暗 + 法线），半透明、透光不透视；依尺寸缓存
+let reedTex = null, reedNrm = null; const reedCache = new Map();
+function reededMat(w, h){
+  const key = w.toFixed(3) + 'x' + h.toFixed(3); if (reedCache.has(key)) return reedCache.get(key);
+  if (!reedTex){
+    const T = 32, cv = document.createElement('canvas'), nv = document.createElement('canvas'); cv.width = nv.width = T; cv.height = nv.height = 4;
+    const g = cv.getContext('2d'), n = nv.getContext('2d');
+    for (let x = 0; x < T; x++){
+      const a = (x + .5)/T*Math.PI*2, v = Math.round(222 + 26*Math.cos(a)), nx = Math.round(128 + 110*Math.sin(a));
+      g.fillStyle = `rgb(${v},${v + 3},${v + 4})`; g.fillRect(x, 0, 1, 4); n.fillStyle = `rgb(${nx},128,255)`; n.fillRect(x, 0, 1, 4);
+    }
+    reedTex = new THREE.CanvasTexture(cv); reedTex.colorSpace = THREE.SRGBColorSpace; reedNrm = new THREE.CanvasTexture(nv);
+    [reedTex, reedNrm].forEach(t => { t.wrapS = t.wrapT = THREE.RepeatWrapping; t.anisotropy = renderer.capabilities.getMaxAnisotropy(); });
+  }
+  const t = reedTex.clone(), nm = reedNrm.clone(); [t, nm].forEach(x => { x.repeat.set(w/.015, 1); x.needsUpdate = true; });
+  const m = new THREE.MeshPhysicalMaterial({map:t, normalMap:nm, normalScale:new THREE.Vector2(.8, .8), color:0xf2f7f8, roughness:.18, transparent:true, opacity:.72, depthWrite:false, side:THREE.DoubleSide});
+  reedCache.set(key, m); return m;
+}
 function pegMat(w, h){
   const key = w.toFixed(3) + 'x' + h.toFixed(3); if (pegCache.has(key)) return pegCache.get(key);
   if (!pegTex){
@@ -2979,9 +2999,9 @@ function buildFurniture(f){
       break;
     }
     case 'bedC': {
-      // 房间 C 木作床组（IE-04 立面 2、4）：床头柜深 380 靠东墙；床台高 260 上放两张标准单人床（3 尺 910×1880）并排置中；
-      // 吊柜调高到 1900–顶，下方 1600 加一层开放层板放投影机（朝床尾 / 西墙投影）
-      const cm = cabDoorM(), tm = cabTopM(), H = 2.98, hd = .38, ph = .26, mt = .22, hh = .8, L = d - hd, z0 = bz + hd, gap = .5, nd = .3, sw = .36;
+      // 房间 C 木作床组（IE-04 立面 2、4）：床头柜深 200（原 380，缩浅让床尾到西墙留约 20 cm 可侧身走过）靠东墙；床台一样做到西墙（床垫尾端外露约 20 cm 台面可踩着走）、高 260 上放两张标准单人床（3 尺 910×1880）并排置中；
+      // 吊柜调高到 1900–顶，下方 1600 加一层开放层板放投影机（朝床尾 / 西墙投影）；层板与吊柜维持深 360，层板下方以 R160 圆弧收进床头柜面
+      const cm = cabDoorM(), tm = cabTopM(), H = 2.98, hd = .2, ph = .26, mt = .22, hh = .8, L = d - hd, z0 = bz + hd, gap = .5, nd = hd - .02, sw = .36;
       // 床台：踢脚内缩 + 柜体 + 台面；北侧（局部 -x）三个抽屉
       g.add(box(w - .06, .06, L - .06, '#3a3632', 0, 0, z0 + L/2), box(w, ph - .08, L, cm, 0, .06, z0 + L/2), box(w, .02, L, tm, 0, ph - .02, z0 + L/2));
       const dl = (L - .08)/3;
@@ -3006,7 +3026,14 @@ function buildFurniture(f){
         g.add(rot(rbox(mw*.7, .13, .4, fabric('#ffffff'), mx, ph + mt - .01, z0 + .26, .06), -.2));
       });
       // 吊柜：1900 到顶；1600 开放层板（含两端侧板与灯条）放投影机
-      const ub = 1.9, sy = 1.6, ud = hd - .02;
+      const ub = 1.9, sy = 1.6, ud = .36, cr = ud - hd;
+      if (cr > .01){
+        // 层板下方圆弧：断面 = 方角减四分之一圆（圆心在层板前缘下方 cr），从层板前缘顺着弧线收到床头柜面（离墙 hd）
+        const sp = new THREE.Shape(); sp.moveTo(hd, sy); sp.lineTo(ud, sy);
+        for (let i = 1; i <= 16; i++){ const t = i/16*Math.PI/2; sp.lineTo(ud - cr*Math.sin(t), sy - cr + cr*Math.cos(t)); }
+        sp.lineTo(hd, sy);
+        const cv = new THREE.Mesh(new THREE.ExtrudeGeometry(sp, {depth:w, bevelEnabled:false, curveSegments:16}), cm); cv.rotation.y = -Math.PI/2; cv.position.set(w/2, 0, bz); sh(cv); g.add(cv);
+      }
       g.add(box(w, H - ub, ud, cm, 0, ub, bz + ud/2)); fronts(g, -w/2, ub, w, H - ub, bz + ud, 4, 1, cm, 'none');
       g.add(box(w, .025, ud, tm, 0, sy, bz + ud/2));
       [-1, 1].forEach(k => g.add(box(.018, ub - sy, ud, cm, k*(w/2 - .009), sy, bz + ud/2)));
@@ -3057,11 +3084,13 @@ function buildFurniture(f){
       break;
     }
     case 'wardrobeA': {
-      // 房间 A 北墙（IE-02 立面 1）：深 400 到顶衣柜，西段 1800 三片推拉门，东段 720 对开门；
+      // 房间 A 北墙（IE-02 立面 1）：深 400 到顶衣柜，西段 1800 三片推拉门，东段对开门；
       // 西端 154 宽在樑下（顶 2323）、东端 340 宽在樑下（顶 2528）；底部 30 踢脚
+      // 东端让出 130 宽门槽给房间 A 三片连动拉门（门槽在樑下，顶 2528；朝客厅那侧白色封板）→ 东段对开门 380 + 210
       const cm = cabDoorM(), H = 2.98, kb = .03, sw = Math.min(1.8, w*.72), fz = bz + d - .02, xs = -w/2 + sw;
-      const lb = Math.min(.154, sw*.2), rb = Math.min(.34, (w - sw)*.5), cols = [[-w/2, lb, 2.323], [-w/2 + lb, w - lb - rb, H], [w/2 - rb, rb, 2.528]];
-      g.add(box(w - .01, kb, d - .05, '#3a3632', 0, 0, bz + (d - .05)/2));
+      const pk = w > 2.4 ? .13 : 0, xe = w/2 - pk;                                                                  // xe = 柜体东端
+      const lb = Math.min(.154, sw*.2), rb = Math.min(.34, (w - sw)*.5), cols = [[-w/2, lb, 2.323], [-w/2 + lb, w - lb - rb, H], [w/2 - rb, rb - pk, 2.528]];
+      g.add(box(w - pk - .01, kb, d - .05, '#3a3632', -pk/2, 0, bz + (d - .05)/2));
       cols.forEach(([x0, cw, top]) => g.add(box(cw, top - kb, d - .02, cm, x0 + cw/2, kb, bz + (d - .02)/2)));
       const lim = x => x < -w/2 + lb ? 2.323 : x > w/2 - rb ? 2.528 : H;
       for (let i = 0; i < 3; i++){                                                                                   // 推拉门（前后两轨）
@@ -3069,7 +3098,11 @@ function buildFurniture(f){
         g.add(rbox(pw + (i === 1 ? .02 : 0), top - kb - .01, .018, cm, x0 + pw/2, kb + .005, z + .009, .003), box(.012, .35, .006, '#3c3a37', x0 + (i === 2 ? .04 : pw - .04), 1.0, z + .021));
       }
       g.add(box(sw, .012, .045, '#b9b3a8', -w/2 + sw/2, kb - .006, fz + .02));                                     // 地轨
-      fronts(g, xs, kb, w - sw - rb, H - kb, fz, 1, 1, cm, 'edge'); fronts(g, w/2 - rb, kb, rb, 2.528 - kb, fz, 1, 1, cm, 'edge');
+      fronts(g, xs, kb, w - sw - rb, H - kb, fz, 1, 1, cm, 'edge'); fronts(g, w/2 - rb, kb, rb - pk, 2.528 - kb, fz, 1, 1, cm, 'edge');
+      if (pk){
+        g.add(box(.012, 2.528, d, mat('#f2f1ee', {roughness:.5}), w/2 - .006, 0, bz + d/2));                        // 门槽朝客厅封板
+        g.add(box(pk - .012, .03, d, mat('#f2f1ee', {roughness:.5}), xe + (pk - .012)/2, 2.498, bz + d/2));          // 门槽顶（上轨藏在这里）
+      }
       break;
     }
     case 'wardrobeB': if (optOf(f, 'style') === 'slide') {
@@ -3407,8 +3440,31 @@ function buildArch(){
       span(y0, oy0, 0, top); span(oy1, y1, 0, top); span(oy0, oy1, Math.min(d.ht, top), top);
     }
   });
-  SLIDES.forEach(({rect:[x0, y0, x1, y1], v}) => {
+  SLIDES.forEach(({rect:[x0, y0, x1, y1], v, n}) => {
     const L = M(v ? y1-y0 : x1-x0), ph = Math.min(v ? 2.4 : 2.1, top), pl = L*.55;
+    if (n === 3){
+      // 三片连动拉门（只用在竖向门洞）：每片 = (门洞 + 伸进门槽 2 cm + 两处搭接 3 cm) / 3 ≈ 39 cm，刚好收进 40 cm 深的门槽
+      // 三轨间距 3.5 cm、白色铝框 3 cm；关 = 三片依序排开盖满门洞，开 = 三片叠在门槽（y0 往北 40 cm）；漫游时点门 / 按 E 开关
+      const into = .02, ov = .03, pw = (L + into + 2*ov)/3, fw = .03, wf = mat('#f2f1ee', {roughness:.35, metalness:.2}), wp = mat('#f4f3f0', {roughness:.55}), cx = wx((x0 + x1)/2) - .01, z0 = wz(y0);
+      const door = {a0:0, a1:1, open:false, cur:0}, ps = [];
+      for (let i = 0; i < 3; i++){
+        // 门片分段：下段 40 cm 白色实心踢脚板（防踢破），40 与 200 两道横框（三片关门时连成水平线），其余长虹玻璃（竖纹约 1.5 cm，透光不透视）
+        const cuts = [.4, 2.0], solid = [0];
+        const pg = new THREE.Group(), parts = [];
+        [0, ...cuts].forEach((b, j) => {
+          const y0s = j ? b + fw : fw, y1s = j < cuts.length ? cuts[j] : ph - fw, sh0 = y1s - y0s;
+          if (solid.includes(j)) parts.push(box(.02, sh0, pw - 2*fw, wp, 0, y0s, pw/2));
+          else { const gl = box(.012, sh0, pw - 2*fw, reededMat(pw - 2*fw, sh0), 0, y0s, pw/2); gl.castShadow = false; parts.push(gl); }
+        });
+        [0, ...cuts, ph - fw].forEach(y => parts.push(box(fw, fw, pw, wf, 0, y, pw/2)));                                  // 上下框 + 横框
+        [fw/2, pw - fw/2].forEach(z => parts.push(box(fw, ph - 2*fw, fw, wf, 0, fw, z)));                                  // 左右框
+        parts.forEach(o => o.userData.door = door); pg.add(...parts); pg.position.x = cx + (i - 1)*.035; archUp.add(pg);
+        ps.push({g:pg, zc:z0 - into + i*(pw - ov), zo:z0 - .395});
+      }
+      [-.035, 0, .035].forEach(dx => archUp.add(box(.02, .006, L + .4, wf, cx + dx, 0, z0 - .4 + (L + .4)/2)));        // 地轨（延伸进门槽）
+      door.apply = t => ps.forEach(p => p.g.position.z = p.zc + (p.zo - p.zc)*t); door.apply(0); doors.push(door);
+      return;
+    }
     [[-1, -.02], [1, .02]].forEach(([s, off]) => {
       const c = s < 0 ? -L/2 + pl/2 : L/2 - pl/2, x = v ? wx((x0+x1)/2) + off : wx(x0) + L/2 + c, z = v ? wz(y0) + L/2 + c : wz((y0+y1)/2) + off;
       const p = new THREE.Mesh(new THREE.BoxGeometry(v ? .02 : pl, ph, v ? pl : .02), glassMat); p.position.set(x, ph/2, z); archUp.add(p);
@@ -3729,7 +3785,7 @@ function loop(){
   else if (fly){ const t = clamp01((now - fly.t0)/fly.dur); camTween(fly.A, fly.B, ease(t)); if (t >= 1) fly = null; }
   else if (opt.mode === 'orbit') orbit.update();
   else stepWalk(dt);
-  doors.forEach(d => { const tg = d.open ? d.a1 : d.a0; d.cur += (tg - d.cur) * Math.min(1, dt*6); d.pivot.rotation.y = d.cur; });
+  doors.forEach(d => { const tg = d.open ? d.a1 : d.a0; d.cur += (tg - d.cur) * Math.min(1, dt*6); if (d.apply) d.apply(d.cur); else d.pivot.rotation.y = d.cur; });
   updateSel();
   renderer.render(scene, camera);
   labelRenderer.render(scene, camera);
