@@ -3,7 +3,8 @@
 套內約 41 m²（12.4 坪）的 2D 配置 + 3D 漫遊，以設計公司的平面與立面圖為底（原始圖檔不公開）。
 
 - 線上版：https://a14506818.github.io/floorplan-3d/
-- 設計細節、指定設備、待確認清單、修改紀錄：[DESIGN.md](DESIGN.md)
+- 與設計師討論用（調整清單、各空間需求、水電、設備、待確認）：[DESIGN.md](DESIGN.md)
+- 模型修改歷程：[CHANGELOG.md](CHANGELOG.md)
 
 ## 快速開啟
 
